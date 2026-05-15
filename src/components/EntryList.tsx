@@ -1,6 +1,7 @@
 import type { Entry } from "../lib/types";
 import type { Settings } from "../lib/settings";
 import { EntryItem } from "./EntryItem";
+import { useT } from "../lib/i18n";
 
 type Props = {
   entries: Entry[];
@@ -9,12 +10,11 @@ type Props = {
 };
 
 export function EntryList({ entries, settings, onUpdate }: Props) {
+  const t = useT();
   if (entries.length === 0) {
     return (
       <div className="entry-list">
-        <div className="entry-list-empty">
-          No entries yet. Type below and press Enter.
-        </div>
+        <div className="entry-list-empty">{t("list.empty")}</div>
       </div>
     );
   }

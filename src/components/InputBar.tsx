@@ -1,6 +1,8 @@
 import { useState, type KeyboardEvent } from "react";
+import { useT } from "../lib/i18n";
 
 export function InputBar({ onSubmit }: { onSubmit: (text: string) => void }) {
+  const t = useT();
   const [value, setValue] = useState("");
 
   function submit() {
@@ -24,7 +26,7 @@ export function InputBar({ onSubmit }: { onSubmit: (text: string) => void }) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKey}
-        placeholder="Type, Enter to save (Shift+Enter = newline)"
+        placeholder={t("input.placeholder")}
         rows={2}
         autoFocus
       />

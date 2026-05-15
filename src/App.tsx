@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Settings as SettingsIcon } from "lucide-react";
 import type { Entry } from "./lib/types";
 import { EntryList } from "./components/EntryList";
 import { InputBar } from "./components/InputBar";
@@ -9,13 +10,20 @@ import {
   saveSettings,
   type Settings as SettingsType,
 } from "./lib/settings";
+import { setLang, useT } from "./lib/i18n";
 import "./App.css";
 
 function App() {
+  const t = useT();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [settings, setSettings] = useState<SettingsType>(() => loadSettings());
+  const [settings, setSettings] = useState<SettingsType>(() => {
+    const s = loadSettings();
+    // sync persisted lang into i18n store before first render
+    setLang(s.lang);
+    return s;
+  });
   const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
@@ -48,13 +56,14 @@ function App() {
   function handleSaveSettings(next: SettingsType) {
     setSettings(next);
     saveSettings(next);
+    setLang(next.lang);
   }
 
   if (loading) {
     return (
       <div className="app">
         <div className="entry-list">
-          <div className="entry-list-empty">Loading...</div>
+          <div className="entry-list-empty">{t("app.loading")}</div>
         </div>
       </div>
     );
@@ -63,7 +72,9 @@ function App() {
     return (
       <div className="app">
         <div className="entry-list">
-          <div className="entry-list-empty">DB error: {error}</div>
+          <div className="entry-list-empty">
+            {t("app.dbError", { msg: error })}
+          </div>
         </div>
       </div>
     );
@@ -75,10 +86,10 @@ function App() {
         className="settings-trigger"
         onClick={() => setShowSettings(true)}
         type="button"
-        title="Settings"
-        aria-label="Open settings"
+        title={t("settings.title")}
+        aria-label={t("settings.open")}
       >
-        ⚙
+        <SettingsIcon size={15} strokeWidth={1.75} aria-hidden="true" />
       </button>
       <EntryList
         entries={entries}

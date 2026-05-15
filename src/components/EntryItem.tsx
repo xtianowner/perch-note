@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Check } from "lucide-react";
 import type { Entry } from "../lib/types";
 import type { Settings } from "../lib/settings";
 import { formatRelative, formatAbsolute } from "../lib/time";
+import { useT } from "../lib/i18n";
 import { CopyButton } from "./CopyButton";
 
 const AUTOSAVE_DELAY_MS = 15_000;
@@ -13,6 +15,7 @@ type Props = {
 };
 
 export function EntryItem({ entry, settings, onUpdate }: Props) {
+  const t = useT();
   const [draft, setDraft] = useState(entry.content);
   const [savedFlash, setSavedFlash] = useState(false);
 
@@ -60,8 +63,16 @@ export function EntryItem({ entry, settings, onUpdate }: Props) {
       <div className="entry-header">
         <span className="entry-time" title={formatAbsolute(entry.updatedAt)}>
           {formatRelative(entry.updatedAt)}
-          {edited && <span className="entry-edited-mark"> (edited)</span>}
-          {savedFlash && <span className="entry-saved-mark"> ✓ saved</span>}
+          {edited && (
+            <span className="entry-edited-mark"> {t("entry.edited")}</span>
+          )}
+          {savedFlash && (
+            <span className="entry-saved-mark">
+              {" "}
+              <Check size={11} strokeWidth={2.25} aria-hidden="true" />{" "}
+              {t("entry.saved")}
+            </span>
+          )}
         </span>
         <CopyButton entry={entry} settings={settings} />
       </div>

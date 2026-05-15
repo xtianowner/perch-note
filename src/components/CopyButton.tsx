@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { Copy, Check } from "lucide-react";
 import type { Entry } from "../lib/types";
 import type { Settings } from "../lib/settings";
 import { buildClipboardText } from "../lib/clipboard";
+import { useT } from "../lib/i18n";
 
 type Props = {
   entry: Entry;
@@ -9,6 +11,7 @@ type Props = {
 };
 
 export function CopyButton({ entry, settings }: Props) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -23,8 +26,18 @@ export function CopyButton({ entry, settings }: Props) {
   }
 
   return (
-    <button className="copy-btn" onClick={handleCopy} type="button">
-      {copied ? "✓ copied" : "copy"}
+    <button
+      className={`copy-btn${copied ? " is-copied" : ""}`}
+      onClick={handleCopy}
+      type="button"
+      aria-label={copied ? t("entry.copied") : t("entry.copy")}
+    >
+      {copied ? (
+        <Check size={13} strokeWidth={2.25} aria-hidden="true" />
+      ) : (
+        <Copy size={13} strokeWidth={1.75} aria-hidden="true" />
+      )}
+      <span>{copied ? t("entry.copied") : t("entry.copy")}</span>
     </button>
   );
 }

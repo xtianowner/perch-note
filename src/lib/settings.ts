@@ -1,3 +1,5 @@
+import type { Lang } from "./i18n";
+
 export type CopyPosition = "before" | "after";
 export type TimestampFormat = "local" | "iso";
 
@@ -5,12 +7,14 @@ export type Settings = {
   timestampFormat: TimestampFormat;
   customText: string;
   customPosition: CopyPosition;
+  lang: Lang;
 };
 
 const DEFAULTS: Settings = {
   timestampFormat: "local",
   customText: "",
   customPosition: "before",
+  lang: "en",
 };
 
 const KEY = "perch.settings.v1";

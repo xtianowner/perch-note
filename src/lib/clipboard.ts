@@ -1,5 +1,6 @@
 import type { Entry } from "./types";
 import type { Settings, TimestampFormat } from "./settings";
+import { t } from "./i18n";
 
 function pad(n: number): string {
   return String(n).padStart(2, "0");
@@ -32,7 +33,7 @@ export function buildClipboardText(entry: Entry, settings: Settings): string {
 export function previewClipboardText(settings: Settings): string {
   const mockEntry: Entry = {
     id: 0,
-    content: "your note content here",
+    content: t("settings.preview.mock"),
     createdAt: Date.now(),
     updatedAt: Date.now(),
   };
