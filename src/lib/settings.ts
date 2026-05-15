@@ -2,12 +2,14 @@ import type { Lang } from "./i18n";
 
 export type CopyPosition = "before" | "after";
 export type TimestampFormat = "local" | "iso";
+export type TextSize = "small" | "medium" | "large";
 
 export type Settings = {
   timestampFormat: TimestampFormat;
   customText: string;
   customPosition: CopyPosition;
   lang: Lang;
+  textSize: TextSize;
 };
 
 const DEFAULTS: Settings = {
@@ -15,6 +17,7 @@ const DEFAULTS: Settings = {
   customText: "",
   customPosition: "before",
   lang: "en",
+  textSize: "medium",
 };
 
 const KEY = "perch.settings.v1";

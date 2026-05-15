@@ -16,12 +16,16 @@
   --radius-sm: 4px;
   --radius-md: 6px;
 
-  /* font sizes */
+  /* text scale (user-controllable; small/medium/large) */
+  --text-scale: 1;
+
+  /* font sizes — body-tier sizes scale with --text-scale.
+     micro-label sizes (--fs-10) intentionally fixed for identity. */
   --fs-10: 10px;
-  --fs-11: 11px;
-  --fs-12: 12px;
-  --fs-13: 13px;
-  --fs-14: 14px;
+  --fs-11: calc(11px * var(--text-scale));
+  --fs-12: calc(12px * var(--text-scale));
+  --fs-13: calc(13px * var(--text-scale));
+  --fs-14: calc(14px * var(--text-scale));
 
   /* motion */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -83,6 +87,21 @@
 
     color-scheme: dark;
   }
+}
+
+/* ---------- text size scaling (user setting) ----------
+   Applied via [data-text-size] on .app root. Affects body / textarea /
+   title / button / settings via the --fs-* tokens. Micro-labels
+   (entry-count, .settings-label, .saved-mark icon) keep fixed 10–11px
+   for visual identity. */
+.app[data-text-size="small"] {
+  --text-scale: 0.92;
+}
+.app[data-text-size="medium"] {
+  --text-scale: 1;
+}
+.app[data-text-size="large"] {
+  --text-scale: 1.12;
 }
 
 /* ---------- base ---------- */
@@ -182,7 +201,7 @@ button {
 .entry-list {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: var(--space-4) var(--space-2) var(--space-2);
+  padding: 18px var(--space-3) var(--space-2);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -201,7 +220,7 @@ button {
 .entry-item {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3) var(--space-3);
+  padding: 10px var(--space-3) var(--space-3);
   background: var(--bg-surface);
   box-shadow: var(--shadow-1);
   transition:
@@ -266,7 +285,7 @@ button {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-2);
+  padding: 6px 10px;
   margin: 0;
   resize: vertical;
   outline: none;
@@ -295,7 +314,7 @@ button {
   cursor: pointer;
   font-size: var(--fs-11);
   color: var(--text-2);
-  padding: 3px var(--space-2);
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
   font-family: inherit;
   font-weight: 500;
@@ -303,7 +322,7 @@ button {
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   transition:
     color var(--dur-base) var(--ease),
     background var(--dur-base) var(--ease),
@@ -327,8 +346,8 @@ button {
   background: transparent;
   cursor: pointer;
   color: var(--text-2);
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
@@ -376,7 +395,7 @@ button {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-2);
+  padding: 6px 10px;
   margin: 0 0 var(--space-1);
   outline: none;
   transition:
@@ -429,7 +448,7 @@ button {
 .input-bar {
   flex: 0 0 auto;
   border-top: 1px solid var(--border);
-  padding: var(--space-2) var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-3) var(--space-3);
   background: var(--bg-surface);
 }
 
@@ -443,7 +462,7 @@ button {
   max-height: 60vh;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
+  padding: 10px var(--space-3);
   outline: none;
   background: var(--bg-input);
   color: inherit;
@@ -513,7 +532,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-2) var(--space-3);
+  padding: 10px var(--space-3);
   border-bottom: 1px solid var(--border);
 }
 
@@ -553,7 +572,7 @@ button {
   font-family: inherit;
   font-size: var(--fs-13);
   line-height: 1.5;
-  padding: 6px var(--space-2);
+  padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-input);
@@ -600,7 +619,7 @@ button {
 .settings-preview {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
+  padding: 10px var(--space-3);
   background: var(--bg-muted);
 }
 
@@ -627,13 +646,13 @@ button {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  padding: 10px var(--space-3);
   border-top: 1px solid var(--border);
   background: var(--bg-surface);
 }
 
 .settings-footer button {
-  padding: 6px var(--space-3);
+  padding: 7px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-surface);

@@ -3,7 +3,7 @@
 # Perch — UI 设计决策
 
 **创建时间**: 2026-05-15 12:58:07
-**更新时间**: 2026-05-15 14:20:00
+**更新时间**: 2026-05-15 16:50:00
 
 ---
 
@@ -245,3 +245,66 @@
 
 ### bundle 影响
 本轮纯 CSS，JS 0 变化；CSS 微增（多 ~0.2KB），无新增 npm 依赖。
+
+---
+
+## v3 polish (2026-05-15)
+
+第三轮微调。两项主诉求：
+
+1. 用户希望可调整文本大小（accessibility / 不同显示器密度场景）
+2. 用户反馈"有些文字和边框距离较近"——v2 调过密度但还有遗漏点
+
+### 字号调节方案
+
+- **形态决策：3 档下拉 select（Small / Medium / Large）**，否决滑块。理由：(a) 桌面工具偏 explicit / 可记忆 / 可复现；(b) 3 档下拉占用空间和现有 Language / Timestamp format select 一致，视觉同语言；(c) 滑块需要连续值校验、touch target、视觉反馈，复杂度回报率低；(d) modular scale 原则（ui-ux-pro-max Typography→Font Size Scale）：固定 3 个尺度优于任意值。
+- **缩放机制：CSS custom property `--text-scale` 乘到 `--fs-11/12/13/14`**。`--fs-10` 与 `.entry-count` / `.settings-label` 等 micro-label 故意不缩放——这类元素的"小"本身就是视觉语义（label 比 body 小一档），跟着等比放大会失去 hierarchy 感。
+- **缩放系数**：small=0.92（≈12px body）、medium=1.0（13px body，当前体验）、large=1.12（≈14.5px body）。范围控制：避免 ≤11px 影响可读性，避免 ≥16px 在 360×480 窗口里挤爆布局。
+- **应用面**：通过 `<div class="app" data-text-size="...">` 注入到根，所有 token 自动连级传播。loading / error / 主界面三处 `.app` div 都加了 attribute，保证一致。
+- **持久化**：新增 `settings.textSize` 字段，默认 `"medium"`，写入既有 `perch.settings.v1` localStorage key；`loadSettings` 走 `{...DEFAULTS, ...parsed}` merge，旧用户自动获得默认 medium，无需迁移。
+- **live preview**：Settings 面板内改字号实时反映（mutate `.app` DOM 属性），Cancel 时回滚到 saved 值——与 v2 的 lang live preview 模式一致。
+- **i18n**：新增 4 个 key（`settings.textSize` + 3 档名），en/zh 同步。
+
+### 文字与边框距离（before → after）
+
+按"文字最贴边的元素"自上而下排查 8 处：
+
+| 元素 | before | after | 理由 |
+|------|--------|-------|------|
+| `.entry-textarea` | 4px / 8px | 6px / 10px | 内容紧贴顶部与左边框是最严重的"压抑感"来源 |
+| `.entry-title` | 4px / 8px | 6px / 10px | 与 textarea 视觉同语言，padding 同步 |
+| `.input-textarea` | 8px / 12px | 10px / 12px | 底部输入栏文字上下贴边，垂直 +2px |
+| `.entry-item` 顶部 | 8px | 10px | header 行离顶 8px，加上 entry-time 11px 字体，视觉上压顶 |
+| `.copy-btn` | 3px / 8px | 4px / 10px | icon+文字组合在 hover 背景时太挤 |
+| `.icon-btn` | 24×24 | 26×26 | X 图标在 settings 关闭按钮处显得"被框住" |
+| `.settings-row select/input/textarea` | 6px / 8px | 7px / 10px | 表单控件常用尺度，与 input-textarea 同步 |
+| `.settings-footer button` | 6px / 12px | 7px / 14px | 主按钮显得更"够分量"，符合 primary action 视觉权重 |
+| `.settings-header` / `.settings-footer` | 8px / 12px | 10px / 12px | modal 上下边距与中间 body 间距一致（v2 body 是 12px） |
+| `.settings-preview` | 8px / 12px | 10px / 12px | 预览框内容贴顶 |
+| `.entry-list` 顶部 | 16px / 8px | 18px / 12px | 第一条 entry 离顶 16px → 18px；左右 8px → 12px（与 input-bar 12px 对齐） |
+
+**未动**的 padding：`.settings-trigger`（齿轮，是 26×26 icon button，padding:0 居中即可）、`.entry-list` 列表项间 gap（v2 已为 8px，合理）、`.entry-actions` 内部 gap=2px（紧凑视觉 chunk，不拆开）、`.settings-body` gap=12px（行间已足够）。
+
+### 设计原则保留
+
+- Swiss minimal 紧凑感不破坏：所有 padding +2~3px，总体 "compact" 感不变，只去掉"挤"
+- 4/8/12/16 spacing grid：新值（6/10/14/18）部分非 grid 值，是有意的——textarea 内边距用非 grid 数能更精细控制呼吸感（typography 内距 vs 组件外距是两套系统，常见做法）
+- design tokens 不动：颜色 / 圆角 / 阴影 / 动画时长 完全沿用
+
+### Pre-Delivery Checklist（本轮）
+
+- [x] 字号 3 档 setting，默认 medium 保留当前体验
+- [x] 旧用户兼容（merge defaults 自动补 textSize=medium）
+- [x] textSize 在 loading / error / main 三种 `.app` 状态下均生效
+- [x] live preview + cancel 回滚
+- [x] micro-label（entry-count / settings-label）不参与缩放，保持视觉语义
+- [x] i18n en/zh 同步新 4 个 key
+- [x] 所有 padding 改动后总宽度仍适配 280px min-width
+- [x] 未触碰：data layer / 自动保存 / `buildClipboardText` / 既有 i18n key 名称 / 窗口配置
+- [x] `pnpm build` 通过
+
+### bundle 影响
+
+- CSS 11.59KB → **11.72KB** (+0.13KB)
+- JS 209.43KB → **210.45KB** (+1.02KB：textSize 字段 + Settings panel select + 4 个 i18n key)
+- 无新增 npm 依赖

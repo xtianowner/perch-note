@@ -76,7 +76,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="app">
+      <div className="app" data-text-size={settings.textSize}>
         <div className="entry-list">
           <div className="entry-list-empty">{t("app.loading")}</div>
         </div>
@@ -85,7 +85,7 @@ function App() {
   }
   if (error) {
     return (
-      <div className="app">
+      <div className="app" data-text-size={settings.textSize}>
         <div className="entry-list">
           <div className="entry-list-empty">
             {t("app.dbError", { msg: error })}
@@ -99,7 +99,7 @@ function App() {
   const countLabel = n === 1 ? t("app.count.one") : t("app.count", { n });
 
   return (
-    <div className="app">
+    <div className="app" data-text-size={settings.textSize}>
       <span className="entry-count">{countLabel}</span>
       <button
         className="settings-trigger"

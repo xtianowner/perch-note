@@ -4,6 +4,7 @@ import type {
   Settings as SettingsType,
   TimestampFormat,
   CopyPosition,
+  TextSize,
 } from "../lib/settings";
 import { previewClipboardText } from "../lib/clipboard";
 import { useT, setLang, type Lang } from "../lib/i18n";
@@ -18,12 +19,22 @@ export function SettingsPanel({ settings, onSave, onClose }: Props) {
   const t = useT();
   const [draft, setDraft] = useState<SettingsType>(settings);
 
+  function applyTextSizeToRoot(size: SettingsType["textSize"]) {
+    // Live-preview text size by mutating the .app root attribute.
+    // Reverts on cancel; persisted via React state on save.
+    const root = document.querySelector(".app");
+    if (root) root.setAttribute("data-text-size", size);
+  }
+
   function patch(partial: Partial<SettingsType>) {
     const next = { ...draft, ...partial };
     setDraft(next);
     // live-apply language so preview / labels reflect immediately
     if (partial.lang && partial.lang !== draft.lang) {
       setLang(partial.lang);
+    }
+    if (partial.textSize && partial.textSize !== draft.textSize) {
+      applyTextSizeToRoot(partial.textSize);
     }
   }
 
@@ -36,6 +47,10 @@ export function SettingsPanel({ settings, onSave, onClose }: Props) {
     // revert lang preview if user changed it but cancels
     if (draft.lang !== settings.lang) {
       setLang(settings.lang);
+    }
+    // revert textSize preview
+    if (draft.textSize !== settings.textSize) {
+      applyTextSizeToRoot(settings.textSize);
     }
     onClose();
   }
@@ -72,6 +87,23 @@ export function SettingsPanel({ settings, onSave, onClose }: Props) {
             >
               <option value="en">{t("settings.lang.en")}</option>
               <option value="zh">{t("settings.lang.zh")}</option>
+            </select>
+          </div>
+
+          <div className="settings-row">
+            <label className="settings-label" htmlFor="text-size">
+              {t("settings.textSize")}
+            </label>
+            <select
+              id="text-size"
+              value={draft.textSize}
+              onChange={(e) =>
+                patch({ textSize: e.target.value as TextSize })
+              }
+            >
+              <option value="small">{t("settings.textSize.small")}</option>
+              <option value="medium">{t("settings.textSize.medium")}</option>
+              <option value="large">{t("settings.textSize.large")}</option>
             </select>
           </div>
 

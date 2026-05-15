@@ -47,6 +47,11 @@ const en: Dict = {
   "settings.customPosition.before": "Before content",
   "settings.customPosition.after": "After content",
 
+  "settings.textSize": "Text size",
+  "settings.textSize.small": "Small",
+  "settings.textSize.medium": "Medium",
+  "settings.textSize.large": "Large",
+
   "settings.preview": "Clipboard preview",
   "settings.preview.mock": "your note content here",
 
@@ -95,6 +100,11 @@ const zh: Dict = {
   "settings.customPosition": "自定义文本位置",
   "settings.customPosition.before": "内容之前",
   "settings.customPosition.after": "内容之后",
+
+  "settings.textSize": "文本大小",
+  "settings.textSize.small": "小",
+  "settings.textSize.medium": "中",
+  "settings.textSize.large": "大",
 
   "settings.preview": "剪贴板预览",
   "settings.preview.mock": "你的记录内容",
