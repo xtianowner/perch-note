@@ -12,6 +12,20 @@
 - 通过 4 个澄清问题确定：项目名 Perch / 数据形态混合 / 技术栈 Tauri+React / 立即建仓
 - 用户补充关键需求：**纯文本存储 + 一键复制纯文本**，避免 markdown 语法污染 → 已写入设计文档 §3 §5 §9
 
+### 2026-05-15 Phase 2 polish v2（文字间距 + 风格 + 新元素融合）
+- 用户在功能扩展后要"优化文字间距、风格设计" → 第二次派 polisher（commit `aeb4009`）
+- 核心调整（详见 `docs/ui.md` v2 polish 段）：
+  - title input 从 `fs-14/600` 降到 `fs-13/600`，用字重而非字号区分层级，小窗里不再压过 textarea
+  - 新增 `--danger / --danger-hover / --danger-soft / --danger-soft-strong` 4 个 token，DeleteButton 4 处 hardcoded `#dc2626`/`#f87171` 全归 token
+  - body line-height 1.5 → 1.55；body 加 `text-rendering: optimizeLegibility`
+  - entry-time 加 `tabular-nums` 稳右栏；entry-count 收紧到 `fs-10 / tracking 0.08em / opacity 0.85`，从"标签"降到"角落徽标"
+  - entry-item 下 padding +4px、header `min-h 18→20`、title↔textarea margin +2px，整体密度更舒展
+  - 全局 focus halo 统一 3px；saved-mark 改用 `translateY` GPU 友好
+  - DeleteButton confirming 加 `font-weight: 600` 作色之外的第二视觉信号
+- bundle 变化：JS **0 变化**（纯 CSS polish）/ CSS 10.93→11.59KB (+0.66KB)
+- HMR 友好，dev 窗口自动刷新
+- v3 若做"清空全部"等危险主按钮可直接 `background: var(--danger)`
+
 ### 2026-05-15 标题 / 删除 / 计数（功能扩展）
 - 用户新需求：① 删除某一记录 ② 给每条记录加标题 ③ 统计当前有多少条
 - 这是功能改动（含 schema migration），不是 polish — 主 agent 自己做（避免再 spawn agent 的 brief 开销），但严守 polisher 留下的 design tokens / i18n 体系
@@ -39,6 +53,7 @@
 ## 调度日志
 
 2026-05-15 13:30  task=phase2-ui-polish  agent=frontend-phase2-polisher  reason=用户显式启动 Phase 2 美化 + 同轮 InputBar resize + i18n  user_correction=none
+2026-05-15 14:15  task=phase2-polish-v2  agent=frontend-phase2-polisher  reason=主 agent 加完 title/delete/count 后用户要"优化文字间距 + 风格"，把新元素融入设计体系 + 整体微调  user_correction=none
 
 ### 2026-05-15 编辑交互简化（去 edit/save 按钮 + 15s 自动保存）
 - 用户反馈"edit / save 太麻烦"，希望"开放式框框，随时改"

@@ -77,6 +77,7 @@
 - [x] hover/focus 微动效（120/180ms）
 - [x] InputBar textarea 可垂直 resize（max 60vh）
 - [x] i18n 中英文切换（Settings 加 Language）
+- [x] **v2 polish**：title input 字号字重微调 + `--danger` token 体系 + 文字 line-height/tracking 优化 + entry-count 收紧 + 全局 focus halo 统一
 - [ ] `decorations: false` + 自绘顶部 toolbar（拖动 / 折叠 / 关闭）— 待后续
 - [ ] 折叠成小条形态 — 待后续
 - [ ] 手动 light/dark toggle — 待后续
