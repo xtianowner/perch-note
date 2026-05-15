@@ -1,0 +1,32 @@
+# --- Node / Vite ---
+node_modules/
+dist/
+.vite/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Tauri / Rust ---
+src-tauri/target/
+src-tauri/Cargo.lock
+src-tauri/WixTools/
+src-tauri/gen/schemas/
+
+# --- IDE / OS ---
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# --- Local artifacts (project convention) ---
+00TEM/AgentBus/artifacts/*
+!00TEM/AgentBus/artifacts/.gitkeep
+
+# --- Env / secrets ---
+.env
+.env.local
+.env.*.local
