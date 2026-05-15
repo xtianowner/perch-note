@@ -10,9 +10,9 @@ pnpm-debug.log*
 
 # --- Tauri / Rust ---
 src-tauri/target/
-src-tauri/Cargo.lock
 src-tauri/WixTools/
 src-tauri/gen/schemas/
+# Cargo.lock is committed (binary project — lock dep versions)
 
 # --- IDE / OS ---
 .DS_Store
