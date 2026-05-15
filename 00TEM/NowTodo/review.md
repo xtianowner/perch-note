@@ -3,7 +3,7 @@
 # Review
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 12:35:00
+**更新时间**: 2026-05-15 13:00:00
 
 ## 阶段总结
 
@@ -11,6 +11,20 @@
 - 用户提出"永远置顶 + 时间戳记录"的桌面工具需求
 - 通过 4 个澄清问题确定：项目名 Perch / 数据形态混合 / 技术栈 Tauri+React / 立即建仓
 - 用户补充关键需求：**纯文本存储 + 一键复制纯文本**，避免 markdown 语法污染 → 已写入设计文档 §3 §5 §9
+
+### 2026-05-15 S4-bis 编辑 + 复制规则 + Settings 面板
+- 用户在 S3 落地后反馈三个需求：① 条目不能二次编辑 ② 复制时要带"最后编辑时间戳（规范格式）" ③ 加一段用户自定义文本，可选放在 content 前 / 后 ④ 上述控制放进小 settings，不挤主页
+- 编辑路径：双击 content（或 edit 按钮）→ textarea；Cmd/Ctrl+Enter 保存（IME 安全），Esc 取消；编辑后 entry header 显示 "(edited)" + 改用 `updatedAt` 计算相对时间
+- DB 加 `updateEntry(id, content)`：UPDATE 内容 + `updated_at = now`，前端 patch local state
+- 复制结构：
+  - 自定义文本空：`<ts>\n<content>`
+  - 自定义文本"前"：`<custom>\n\n<ts>\n<content>`
+  - 自定义文本"后"：`<ts>\n<content>\n\n<custom>`
+  - 时间戳取 `updatedAt`（用户硬需求），默认 local `YYYY-MM-DD HH:mm:ss`，Settings 可切 ISO 8601
+- Settings 持久化：localStorage `perch.settings.v1`（不进 SQLite，避免污染数据 schema）
+- Settings UI：右上角小齿轮（28×28，浮动 absolute）→ modal 居中，含 timestamp 格式 / 自定义文本 / 位置 + 实时 clipboard preview
+- 新模块：`lib/settings.ts`、`lib/clipboard.ts`（含 `buildClipboardText` / `previewClipboardText`）、`components/Settings.tsx`
+- **HMR 友好**：本次纯 TS 改动，用户的 dev 窗口自动刷新无需重启 tauri dev
 
 ### 2026-05-15 S3 接入 SQLite 持久化
 - 走 `tauri-plugin-sql` v2.4.0（features=sqlite，底层 sqlx），不手写 rusqlite

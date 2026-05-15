@@ -16,11 +16,38 @@ body {
 }
 
 .app {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+}
+
+/* Settings trigger (floating gear) */
+.settings-trigger {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.settings-trigger:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
 }
 
 /* List */
@@ -47,6 +74,10 @@ body {
   background: #fff;
 }
 
+.entry-editing {
+  border-color: #888;
+}
+
 .entry-header {
   display: flex;
   justify-content: space-between;
@@ -54,10 +85,21 @@ body {
   font-size: 11px;
   color: #888;
   margin-bottom: 4px;
+  gap: 8px;
 }
 
 .entry-time {
   cursor: default;
+}
+
+.entry-edited-mark {
+  color: #aaa;
+  font-style: italic;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 2px;
 }
 
 .entry-content {
@@ -67,9 +109,38 @@ body {
   font-size: 13px;
   line-height: 1.4;
   color: #222;
+  cursor: text;
 }
 
-/* Copy button */
+.entry-edit-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  border: 1px solid #888;
+  border-radius: 4px;
+  padding: 4px 6px;
+  resize: vertical;
+  outline: none;
+  background: #fff;
+  color: inherit;
+}
+
+.entry-edit-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 10px;
+  color: #888;
+}
+
+.entry-edit-keys {
+  margin-left: auto;
+}
+
+/* Copy / small button */
 .copy-btn {
   border: none;
   background: transparent;
@@ -79,6 +150,7 @@ body {
   padding: 2px 6px;
   border-radius: 3px;
   font-family: inherit;
+  line-height: 1;
 }
 
 .copy-btn:hover {
@@ -112,6 +184,143 @@ body {
   border-color: #888;
 }
 
+/* Settings modal */
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-panel {
+  background: #fff;
+  border-radius: 6px;
+  width: calc(100% - 24px);
+  max-width: 340px;
+  max-height: calc(100% - 24px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e3e3e3;
+}
+
+.settings-header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.settings-body {
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-label {
+  font-size: 11px;
+  color: #666;
+}
+
+.settings-row select,
+.settings-row textarea,
+.settings-row input[type="text"] {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: inherit;
+}
+
+.settings-row textarea {
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.settings-radio-group {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: inherit;
+}
+
+.settings-radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.settings-preview {
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  padding: 8px;
+  background: #fafafa;
+}
+
+.settings-preview-title {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.settings-preview-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  color: #333;
+}
+
+.settings-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid #e3e3e3;
+}
+
+.settings-footer button {
+  padding: 4px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.settings-footer button.primary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.settings-footer button.primary:hover {
+  background: #1d4ed8;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     color: #e8e8e8;
@@ -127,19 +336,59 @@ body {
   }
   .entry-header,
   .entry-list-empty,
-  .copy-btn {
+  .copy-btn,
+  .entry-edit-hint {
     color: #999;
   }
   .copy-btn:hover {
     color: #fff;
     background: #3a3a3a;
   }
-  .input-textarea {
+  .input-textarea,
+  .entry-edit-textarea {
     background: #1a1a1a;
     color: #e8e8e8;
     border-color: #444;
   }
-  .input-textarea:focus {
-    border-color: #888;
+  .input-textarea:focus,
+  .entry-edit-textarea {
+    border-color: #555;
+  }
+  .settings-trigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ccc;
+  }
+  .settings-panel {
+    background: #2a2a2a;
+    color: #e8e8e8;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  }
+  .settings-header,
+  .settings-footer {
+    border-color: #3a3a3a;
+  }
+  .settings-row select,
+  .settings-row textarea,
+  .settings-row input[type="text"] {
+    background: #1a1a1a;
+    color: #e8e8e8;
+    border-color: #444;
+  }
+  .settings-preview {
+    background: #1f1f1f;
+    border-color: #3a3a3a;
+  }
+  .settings-preview-text {
+    color: #e8e8e8;
+  }
+  .settings-footer button {
+    background: #2a2a2a;
+    color: #e8e8e8;
+    border-color: #444;
+  }
+  .settings-footer button.primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
   }
 }

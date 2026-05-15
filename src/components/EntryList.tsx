@@ -1,7 +1,14 @@
 import type { Entry } from "../lib/types";
+import type { Settings } from "../lib/settings";
 import { EntryItem } from "./EntryItem";
 
-export function EntryList({ entries }: { entries: Entry[] }) {
+type Props = {
+  entries: Entry[];
+  settings: Settings;
+  onUpdate: (id: number, content: string) => Promise<void>;
+};
+
+export function EntryList({ entries, settings, onUpdate }: Props) {
   if (entries.length === 0) {
     return (
       <div className="entry-list">
@@ -14,7 +21,12 @@ export function EntryList({ entries }: { entries: Entry[] }) {
   return (
     <div className="entry-list">
       {entries.map((e) => (
-        <EntryItem key={e.id} entry={e} />
+        <EntryItem
+          key={e.id}
+          entry={e}
+          settings={settings}
+          onUpdate={onUpdate}
+        />
       ))}
     </div>
   );

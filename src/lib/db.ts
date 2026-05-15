@@ -48,3 +48,16 @@ export async function insertEntry(content: string): Promise<Entry> {
     updatedAt: now,
   };
 }
+
+export async function updateEntry(
+  id: number,
+  content: string,
+): Promise<{ updatedAt: number }> {
+  const conn = await db();
+  const now = Date.now();
+  await conn.execute(
+    "UPDATE entries SET content = $1, updated_at = $2 WHERE id = $3",
+    [content, now, id],
+  );
+  return { updatedAt: now };
+}

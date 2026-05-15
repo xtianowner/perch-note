@@ -3,7 +3,7 @@
 # TODO
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 12:35:00
+**更新时间**: 2026-05-15 13:00:00
 
 ## V1 MVP（已经按顺序排好）
 
@@ -33,7 +33,16 @@
 - [x] flex 布局自适应任意窗口尺寸（列表区滚动 + 输入栏固定底部）
 - [x] IME 友好（中文输入法 composing 时 Enter 不提交）
 - [x] 深色模式 (`prefers-color-scheme: dark`)
-- [ ] 待用户手动测：输入条目、复制按钮、相对时间显示
+
+### S4-bis 编辑 + 复制规则 + Settings（Phase 1 功能完整化）
+- [x] 二次编辑：双击 content / 点 edit 按钮 → textarea；Cmd/Ctrl+Enter 保存，Esc 取消
+- [x] 编辑后 entry 显示 "(edited)" 标记，相对时间改用 `updatedAt`
+- [x] DB 加 `updateEntry(id, content)`，写入 `updated_at = now`
+- [x] 复制规则：时间戳（取 `updatedAt`）永远附带，默认 local 格式 `2026-05-15 12:35:00`
+- [x] 自定义文本（localStorage 持久化）+ 位置切换（before/after content）
+- [x] Settings 面板：右上角齿轮触发的 modal，含 timestamp 格式 / 自定义文本 / 位置 + 实时 clipboard preview
+- [x] 新增模块：`lib/settings.ts`、`lib/clipboard.ts`、`components/Settings.tsx`
+- [ ] 待用户手动测：双击编辑、Cmd+Enter 保存、复制带时间戳、Settings 调整自定义文本前/后
 
 ### S3 数据层（in-memory → SQLite 切换）
 - [x] 接入 `tauri-plugin-sql` v2.4.0（features sqlite）+ JS 端 `@tauri-apps/plugin-sql`
