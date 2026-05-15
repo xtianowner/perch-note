@@ -74,10 +74,6 @@ body {
   background: #fff;
 }
 
-.entry-editing {
-  border-color: #888;
-}
-
 .entry-header {
   display: flex;
   justify-content: space-between;
@@ -97,47 +93,38 @@ body {
   font-style: italic;
 }
 
-.entry-actions {
-  display: flex;
-  gap: 2px;
+.entry-saved-mark {
+  color: #2a9d4f;
+  font-style: italic;
 }
 
-.entry-content {
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
-  line-height: 1.4;
-  color: #222;
-  cursor: text;
-}
-
-.entry-edit-textarea {
+/* Open textarea (always editable) */
+.entry-textarea {
   width: 100%;
   box-sizing: border-box;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
   line-height: 1.4;
-  border: 1px solid #888;
-  border-radius: 4px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
   padding: 4px 6px;
   resize: vertical;
   outline: none;
+  max-height: 240px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.entry-textarea:hover {
+  border-color: #e0e0e0;
+}
+
+.entry-textarea:focus {
+  border-color: #888;
   background: #fff;
-  color: inherit;
-}
-
-.entry-edit-hint {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  font-size: 10px;
-  color: #888;
-}
-
-.entry-edit-keys {
-  margin-left: auto;
 }
 
 /* Copy / small button */
@@ -331,28 +318,29 @@ body {
     background: #2a2a2a;
     border-color: #3a3a3a;
   }
-  .entry-content {
-    color: #e8e8e8;
-  }
   .entry-header,
   .entry-list-empty,
-  .copy-btn,
-  .entry-edit-hint {
+  .copy-btn {
     color: #999;
   }
   .copy-btn:hover {
     color: #fff;
     background: #3a3a3a;
   }
-  .input-textarea,
-  .entry-edit-textarea {
+  .entry-textarea:hover {
+    border-color: #3a3a3a;
+  }
+  .entry-textarea:focus {
+    background: #1f1f1f;
+    border-color: #666;
+  }
+  .input-textarea {
     background: #1a1a1a;
     color: #e8e8e8;
     border-color: #444;
   }
-  .input-textarea:focus,
-  .entry-edit-textarea {
-    border-color: #555;
+  .input-textarea:focus {
+    border-color: #888;
   }
   .settings-trigger:hover {
     background: rgba(255, 255, 255, 0.08);

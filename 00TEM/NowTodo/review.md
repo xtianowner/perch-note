@@ -3,7 +3,7 @@
 # Review
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 13:00:00
+**更新时间**: 2026-05-15 13:15:00
 
 ## 阶段总结
 
@@ -11,6 +11,19 @@
 - 用户提出"永远置顶 + 时间戳记录"的桌面工具需求
 - 通过 4 个澄清问题确定：项目名 Perch / 数据形态混合 / 技术栈 Tauri+React / 立即建仓
 - 用户补充关键需求：**纯文本存储 + 一键复制纯文本**，避免 markdown 语法污染 → 已写入设计文档 §3 §5 §9
+
+### 2026-05-15 编辑交互简化（去 edit/save 按钮 + 15s 自动保存）
+- 用户反馈"edit / save 太麻烦"，希望"开放式框框，随时改"
+- 改为：textarea 永远 open 可改；不再有 view/edit 二态切换、不再有 edit/save/cancel 按钮、不再有 Cmd+Enter / Esc 快捷键
+- 自动保存策略（三重）：
+  1. **15s debounce**：每次 keystroke 重置定时器，停手 15s 后保存
+  2. **blur 立即保存**：焦点离开 textarea 立即 flush
+  3. **unmount 兜底**：组件卸载时 flush（关窗 / 列表重排 / 路由切换时都覆盖）
+- 写入门控：空内容 / 与原内容相同 → 不发 DB 请求（避免无效写）
+- 视觉反馈：保存成功后 header 闪 "✓ saved" 1.5s 后消失
+- 实现要点：用 useRef 持有最新 draft/onUpdate/entry.content，使 flush 成为稳定引用（避免 stale closure 和 effect 抖动）
+- 删除的 UI 元素：`.entry-editing` 类、`.entry-edit-textarea`、`.entry-edit-hint`、`.entry-edit-keys`、view 模式的 `.entry-content` div
+- 设计文档 docs/design/0515-1146-design.md §6 UI 草图里画的 "[edit] 按钮 + 双击编辑" 已过时，待 V1 闭环时整体更新
 
 ### 2026-05-15 S4-bis 编辑 + 复制规则 + Settings 面板
 - 用户在 S3 落地后反馈三个需求：① 条目不能二次编辑 ② 复制时要带"最后编辑时间戳（规范格式）" ③ 加一段用户自定义文本，可选放在 content 前 / 后 ④ 上述控制放进小 settings，不挤主页
