@@ -5,45 +5,63 @@ import type { Settings } from "../lib/settings";
 import { formatRelative, formatAbsolute } from "../lib/time";
 import { useT } from "../lib/i18n";
 import { CopyButton } from "./CopyButton";
+import { DeleteButton } from "./DeleteButton";
 
 const AUTOSAVE_DELAY_MS = 15_000;
 
 type Props = {
   entry: Entry;
   settings: Settings;
-  onUpdate: (id: number, content: string) => Promise<void>;
+  onUpdate: (id: number, content: string, title: string) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
 };
 
-export function EntryItem({ entry, settings, onUpdate }: Props) {
+export function EntryItem({ entry, settings, onUpdate, onDelete }: Props) {
   const t = useT();
-  const [draft, setDraft] = useState(entry.content);
+  const [contentDraft, setContentDraft] = useState(entry.content);
+  const [titleDraft, setTitleDraft] = useState(entry.title);
   const [savedFlash, setSavedFlash] = useState(false);
 
-  const draftRef = useRef(draft);
-  draftRef.current = draft;
-  const originalRef = useRef(entry.content);
-  originalRef.current = entry.content;
+  const contentRef = useRef(contentDraft);
+  contentRef.current = contentDraft;
+  const titleRef = useRef(titleDraft);
+  titleRef.current = titleDraft;
+  const originalContentRef = useRef(entry.content);
+  originalContentRef.current = entry.content;
+  const originalTitleRef = useRef(entry.title);
+  originalTitleRef.current = entry.title;
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
   const idRef = useRef(entry.id);
   idRef.current = entry.id;
 
   const flush = useCallback(async () => {
-    const next = draftRef.current.trim();
-    if (!next) return;
-    if (next === originalRef.current) return;
-    await onUpdateRef.current(idRef.current, next);
+    const c = contentRef.current.trim();
+    const tt = titleRef.current.trim();
+    if (!c) return;
+    if (
+      c === originalContentRef.current &&
+      tt === originalTitleRef.current
+    ) {
+      return;
+    }
+    await onUpdateRef.current(idRef.current, c, tt);
     setSavedFlash(true);
     window.setTimeout(() => setSavedFlash(false), 1500);
   }, []);
 
   useEffect(() => {
-    if (draft === entry.content) return;
-    const t = window.setTimeout(() => {
+    if (
+      contentDraft === entry.content &&
+      titleDraft === entry.title
+    ) {
+      return;
+    }
+    const id = window.setTimeout(() => {
       void flush();
     }, AUTOSAVE_DELAY_MS);
-    return () => clearTimeout(t);
-  }, [draft, entry.content, flush]);
+    return () => clearTimeout(id);
+  }, [contentDraft, titleDraft, entry.content, entry.title, flush]);
 
   useEffect(() => {
     return () => {
@@ -56,7 +74,7 @@ export function EntryItem({ entry, settings, onUpdate }: Props) {
   }
 
   const edited = entry.updatedAt > entry.createdAt;
-  const rows = Math.max(2, draft.split("\n").length);
+  const rows = Math.max(2, contentDraft.split("\n").length);
 
   return (
     <div className="entry-item">
@@ -74,12 +92,24 @@ export function EntryItem({ entry, settings, onUpdate }: Props) {
             </span>
           )}
         </span>
-        <CopyButton entry={entry} settings={settings} />
+        <div className="entry-actions">
+          <DeleteButton onConfirm={() => void onDelete(entry.id)} />
+          <CopyButton entry={entry} settings={settings} />
+        </div>
       </div>
+      <input
+        type="text"
+        className="entry-title"
+        value={titleDraft}
+        onChange={(e) => setTitleDraft(e.target.value)}
+        onBlur={handleBlur}
+        placeholder={t("entry.titlePlaceholder")}
+        spellCheck={false}
+      />
       <textarea
         className="entry-textarea"
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
+        value={contentDraft}
+        onChange={(e) => setContentDraft(e.target.value)}
         onBlur={handleBlur}
         rows={rows}
         spellCheck={false}

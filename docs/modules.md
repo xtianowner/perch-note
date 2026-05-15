@@ -12,7 +12,7 @@
 
 | 模块名 | 状态 | 角色 | 输入 | 输出 | 依赖 | 入口 |
 |---|---|---|---|---|---|---|
-| `db` (TS) | ✓ S3 | SQLite CRUD（前端直发 SQL，plugin-sql 经 IPC 在 Rust 端执行） | `listEntries() / insertEntry(content)` | `Entry[]` / `Entry` | `@tauri-apps/plugin-sql` | `src/lib/db.ts` |
+| `db` (TS) | ✓ S3 + S4-ter | SQLite CRUD（前端直发 SQL，plugin-sql 经 IPC 在 Rust 端执行） | `listEntries() / insertEntry(content) / updateEntry(id,content,title) / deleteEntry(id)` | `Entry[]` / `Entry` / `void` | `@tauri-apps/plugin-sql` | `src/lib/db.ts` |
 | `EntryList` (React) | ✓ Phase 1 | 列表渲染（V1 不做虚拟滚动） | `entries: Entry[]` | UI | react | `src/components/EntryList.tsx` |
 | `EntryItem` (React) | ✓ Phase 1 | 单条渲染 + 时间戳 + copy | `entry: Entry` | UI | react | `src/components/EntryItem.tsx` |
 | `InputBar` (React) | ✓ Phase 1 | 输入框 + Enter 提交 + IME 友好 | `onSubmit(text: string)` | 提交事件 | react | `src/components/InputBar.tsx` |

@@ -12,6 +12,17 @@
 - 通过 4 个澄清问题确定：项目名 Perch / 数据形态混合 / 技术栈 Tauri+React / 立即建仓
 - 用户补充关键需求：**纯文本存储 + 一键复制纯文本**，避免 markdown 语法污染 → 已写入设计文档 §3 §5 §9
 
+### 2026-05-15 标题 / 删除 / 计数（功能扩展）
+- 用户新需求：① 删除某一记录 ② 给每条记录加标题 ③ 统计当前有多少条
+- 这是功能改动（含 schema migration），不是 polish — 主 agent 自己做（避免再 spawn agent 的 brief 开销），但严守 polisher 留下的 design tokens / i18n 体系
+- DB migration v2：`ALTER TABLE entries ADD COLUMN title TEXT NOT NULL DEFAULT ''`（旧数据自动补空串）
+- 软删 (`UPDATE deleted_at = now`)，list query 已过滤 IS NULL，旧 schema 字段直接可用
+- DeleteButton 2 步 inline 确认（首次点变红 "Confirm"，4s 窗口；过期自动复位）— 比原生 confirm() dialog 视觉好
+- title 是单行 `<input>` 在 textarea 上方，与 content 一起走自动保存（合并到一个 flush）
+- 复制规则微调：title 非空时紧贴 ts 之上，外层 custom prefix/suffix 不变 — 用户可在 list 里直接试复制看效果（preview 仍保留空 title 简洁）
+- 顶部 entry-count 用 absolute 定位在 settings-trigger 左侧，`uppercase` + `tabular-nums` 跟随 polisher 11px 微 label 风格
+- bundle 变化：JS 207.30→209.43KB (+1.0%) / gzip 65.68→66.30KB (+0.9%) / CSS 9.63→10.93KB
+
 ### 2026-05-15 Phase 2 美化启动 + i18n + InputBar resize
 - 用户显式说"本次开始美化，优化 UI 设计，搞得漂亮一点，简约风格" → 按 CLAUDE.md §8 强制走 frontend-phase2-polisher（commit `5226174`）
 - 同轮顺手做：① InputBar textarea 可拖拽 resize（max 60vh） ② 加中英文切换（Settings 里 Language 选项 + 实时切换 UI 字符串）

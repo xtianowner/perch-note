@@ -4,7 +4,12 @@ import type { Entry } from "./lib/types";
 import { EntryList } from "./components/EntryList";
 import { InputBar } from "./components/InputBar";
 import { SettingsPanel } from "./components/Settings";
-import { listEntries, insertEntry, updateEntry } from "./lib/db";
+import {
+  listEntries,
+  insertEntry,
+  updateEntry,
+  deleteEntry,
+} from "./lib/db";
 import {
   loadSettings,
   saveSettings,
@@ -20,7 +25,6 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [settings, setSettings] = useState<SettingsType>(() => {
     const s = loadSettings();
-    // sync persisted lang into i18n store before first render
     setLang(s.lang);
     return s;
   });
@@ -42,12 +46,23 @@ function App() {
     }
   }
 
-  async function handleUpdate(id: number, content: string) {
+  async function handleUpdate(id: number, content: string, title: string) {
     try {
-      const { updatedAt } = await updateEntry(id, content);
+      const { updatedAt } = await updateEntry(id, content, title);
       setEntries((prev) =>
-        prev.map((e) => (e.id === id ? { ...e, content, updatedAt } : e)),
+        prev.map((e) =>
+          e.id === id ? { ...e, content, title, updatedAt } : e,
+        ),
       );
+    } catch (e) {
+      setError(String(e));
+    }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      await deleteEntry(id);
+      setEntries((prev) => prev.filter((e) => e.id !== id));
     } catch (e) {
       setError(String(e));
     }
@@ -80,8 +95,12 @@ function App() {
     );
   }
 
+  const n = entries.length;
+  const countLabel = n === 1 ? t("app.count.one") : t("app.count", { n });
+
   return (
     <div className="app">
+      <span className="entry-count">{countLabel}</span>
       <button
         className="settings-trigger"
         onClick={() => setShowSettings(true)}
@@ -95,6 +114,7 @@ function App() {
         entries={entries}
         settings={settings}
         onUpdate={handleUpdate}
+        onDelete={handleDelete}
       />
       <InputBar onSubmit={addEntry} />
       {showSettings && (

@@ -6,10 +6,11 @@ import { useT } from "../lib/i18n";
 type Props = {
   entries: Entry[];
   settings: Settings;
-  onUpdate: (id: number, content: string) => Promise<void>;
+  onUpdate: (id: number, content: string, title: string) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
 };
 
-export function EntryList({ entries, settings, onUpdate }: Props) {
+export function EntryList({ entries, settings, onUpdate, onDelete }: Props) {
   const t = useT();
   if (entries.length === 0) {
     return (
@@ -26,6 +27,7 @@ export function EntryList({ entries, settings, onUpdate }: Props) {
           entry={e}
           settings={settings}
           onUpdate={onUpdate}
+          onDelete={onDelete}
         />
       ))}
     </div>

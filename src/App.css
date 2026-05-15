@@ -327,6 +327,89 @@ button {
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
+/* ---------- entry count badge ---------- */
+.entry-count {
+  position: absolute;
+  top: 10px;
+  right: 38px;
+  z-index: 10;
+  font-size: var(--fs-11);
+  color: var(--text-3);
+  pointer-events: none;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* ---------- entry title (single-line input) ---------- */
+.entry-title {
+  width: 100%;
+  font-family: inherit;
+  font-size: var(--fs-14);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  margin: 0 0 2px;
+  outline: none;
+  transition:
+    border-color var(--dur-base) var(--ease),
+    background var(--dur-base) var(--ease),
+    box-shadow var(--dur-base) var(--ease);
+}
+.entry-title::placeholder {
+  color: var(--text-3);
+  font-weight: 400;
+  font-style: italic;
+}
+.entry-title:hover {
+  border-color: var(--border);
+}
+.entry-title:focus {
+  border-color: var(--accent);
+  background: var(--bg-input);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---------- entry actions row ---------- */
+.entry-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+/* ---------- delete button (variant of copy-btn) ---------- */
+.delete-btn:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+}
+.delete-btn.is-confirming {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.15);
+}
+.delete-btn.is-confirming:hover {
+  background: rgba(220, 38, 38, 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  .delete-btn:hover {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+  }
+  .delete-btn.is-confirming {
+    color: #fca5a5;
+    background: rgba(248, 113, 113, 0.18);
+  }
+  .delete-btn.is-confirming:hover {
+    background: rgba(248, 113, 113, 0.26);
+  }
+}
+
 /* ---------- input bar ---------- */
 .input-bar {
   flex: 0 0 auto;

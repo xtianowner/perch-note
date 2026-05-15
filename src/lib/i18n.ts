@@ -11,6 +11,8 @@ type Dict = Record<string, string>;
 const en: Dict = {
   "app.loading": "Loading...",
   "app.dbError": "DB error: {msg}",
+  "app.count": "{n} entries",
+  "app.count.one": "1 entry",
 
   "list.empty": "No entries yet. Type below and press Enter.",
 
@@ -18,6 +20,9 @@ const en: Dict = {
   "entry.saved": "saved",
   "entry.copy": "Copy",
   "entry.copied": "Copied",
+  "entry.delete": "Delete",
+  "entry.deleteConfirm": "Confirm",
+  "entry.titlePlaceholder": "Title (optional)",
 
   "input.placeholder": "Type, Enter to save (Shift+Enter = newline)",
 
@@ -55,6 +60,8 @@ const en: Dict = {
 const zh: Dict = {
   "app.loading": "加载中...",
   "app.dbError": "数据库错误：{msg}",
+  "app.count": "共 {n} 条",
+  "app.count.one": "共 1 条",
 
   "list.empty": "还没有记录。在下方输入并按 Enter。",
 
@@ -62,6 +69,9 @@ const zh: Dict = {
   "entry.saved": "已保存",
   "entry.copy": "复制",
   "entry.copied": "已复制",
+  "entry.delete": "删除",
+  "entry.deleteConfirm": "再点确认",
+  "entry.titlePlaceholder": "标题（可选）",
 
   "input.placeholder": "输入内容，Enter 保存（Shift+Enter 换行）",
 

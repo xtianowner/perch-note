@@ -12,6 +12,7 @@ function db(): Promise<Database> {
 
 type Row = {
   id: number;
+  title: string;
   content: string;
   created_at: number;
   updated_at: number;
@@ -20,6 +21,7 @@ type Row = {
 function rowToEntry(r: Row): Entry {
   return {
     id: r.id,
+    title: r.title,
     content: r.content,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
@@ -29,7 +31,7 @@ function rowToEntry(r: Row): Entry {
 export async function listEntries(): Promise<Entry[]> {
   const conn = await db();
   const rows = await conn.select<Row[]>(
-    "SELECT id, content, created_at, updated_at FROM entries WHERE deleted_at IS NULL ORDER BY created_at DESC",
+    "SELECT id, title, content, created_at, updated_at FROM entries WHERE deleted_at IS NULL ORDER BY created_at DESC",
   );
   return rows.map(rowToEntry);
 }
@@ -38,11 +40,12 @@ export async function insertEntry(content: string): Promise<Entry> {
   const conn = await db();
   const now = Date.now();
   const result = await conn.execute(
-    "INSERT INTO entries (content, created_at, updated_at) VALUES ($1, $2, $3)",
+    "INSERT INTO entries (content, title, created_at, updated_at) VALUES ($1, '', $2, $3)",
     [content, now, now],
   );
   return {
     id: Number(result.lastInsertId),
+    title: "",
     content,
     createdAt: now,
     updatedAt: now,
@@ -52,12 +55,22 @@ export async function insertEntry(content: string): Promise<Entry> {
 export async function updateEntry(
   id: number,
   content: string,
+  title: string,
 ): Promise<{ updatedAt: number }> {
   const conn = await db();
   const now = Date.now();
   await conn.execute(
-    "UPDATE entries SET content = $1, updated_at = $2 WHERE id = $3",
-    [content, now, id],
+    "UPDATE entries SET content = $1, title = $2, updated_at = $3 WHERE id = $4",
+    [content, title, now, id],
   );
   return { updatedAt: now };
+}
+
+export async function deleteEntry(id: number): Promise<void> {
+  const conn = await db();
+  const now = Date.now();
+  await conn.execute(
+    "UPDATE entries SET deleted_at = $1 WHERE id = $2",
+    [now, id],
+  );
 }

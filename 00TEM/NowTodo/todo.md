@@ -3,7 +3,7 @@
 # TODO
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 13:30:00
+**更新时间**: 2026-05-15 13:55:00
 
 ## V1 MVP（已经按顺序排好）
 
@@ -54,6 +54,16 @@
 - [x] App.tsx 改成 `useEffect` 启动加载 + insert 后追加；loading / error 状态分支
 - [x] capabilities 加 sql:default / allow-execute / allow-select / allow-load / allow-close
 - [ ] **需用户手动验证**：杀掉旧 `pnpm tauri dev`、重启（Rust 改动 HMR 不生效）；输入条目后关窗、再开，数据应当还在
+
+### S4-ter 标题 / 删除 / 计数（功能扩展）
+- [x] DB migration v2：`ALTER TABLE entries ADD COLUMN title TEXT NOT NULL DEFAULT ''`
+- [x] `Entry` type 加 `title`，`db.ts` 全链路传递 + 新增 `deleteEntry(id)`（软删，写 `deleted_at`）
+- [x] EntryItem 加 title 输入框（单行 input，可选），与 content 共享自动保存（15s/blur/unmount）
+- [x] DeleteButton 组件：2 步确认（首次点变红 "Confirm"，4s 内再点真删；不点自动恢复）
+- [x] 顶部右上角实时显示条目数 "N entries" / "共 N 条"
+- [x] 复制规则更新：当 title 非空，title 紧贴 timestamp 之上（仍纯文本）
+- [x] i18n 新增 keys（app.count / entry.delete / entry.titlePlaceholder 等）
+- [ ] **需用户重启 dev**：Rust schema 改动 → 杀掉旧 `pnpm tauri dev` 重启，migration v2 自动跑
 
 ### S5 打包
 - [ ] macOS dmg 签名（暂用 ad-hoc 签名，开源后再申 dev cert）
