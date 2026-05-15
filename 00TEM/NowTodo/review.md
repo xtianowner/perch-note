@@ -12,6 +12,24 @@
 - 通过 4 个澄清问题确定：项目名 Perch / 数据形态混合 / 技术栈 Tauri+React / 立即建仓
 - 用户补充关键需求：**纯文本存储 + 一键复制纯文本**，避免 markdown 语法污染 → 已写入设计文档 §3 §5 §9
 
+### 2026-05-15 Phase 2 polish v3（字号档位 + 文字呼吸空间）
+- 用户两个需求：① 加"调整文本大小"功能 ② 文字与边框距离再调 → 第三次派 polisher（commit `3803b5a`）
+- 字号方案：**3 档 select**（Small/Medium/Large，scale 0.92/1.0/1.12），CSS 变量 `--text-scale` 乘到 `--fs-11/12/13/14` 实现等比缩放
+  - 注入方式：`<div class="app" data-text-size={value}>` 根属性 + `[data-text-size="..."]` CSS 选择器
+  - 微 label（entry-count / settings-label / fs-10）刻意不缩放，保 hierarchy
+  - 默认 medium = 当前体验；Settings 中实时预览 + cancel 回滚（同 v2 lang 行为）
+- padding 调整 11 处（呼吸空间）：
+  - entry-textarea / entry-title 4/8 → 6/10
+  - input-textarea 8/12 → 10/12
+  - entry-item 顶 padding 8 → 10
+  - copy-btn 3/8 → 4/10
+  - icon-btn 24 → 26
+  - settings 表单控件 6/8 → 7/10
+  - settings primary button 6/12 → 7/14
+  - entry-list 16/8 → 18/12
+- bundle 变化：CSS 11.59→11.72KB (+0.13KB) / JS 209.43→210.45KB (+1.02KB，新 textSize 字段 + select + 4 i18n key)
+- HMR 友好；既有 localStorage `perch.settings.v1` 自动补 `textSize: 'medium'`，旧用户兼容
+
 ### 2026-05-15 Phase 2 polish v2（文字间距 + 风格 + 新元素融合）
 - 用户在功能扩展后要"优化文字间距、风格设计" → 第二次派 polisher（commit `aeb4009`）
 - 核心调整（详见 `docs/ui.md` v2 polish 段）：
@@ -54,6 +72,7 @@
 
 2026-05-15 13:30  task=phase2-ui-polish  agent=frontend-phase2-polisher  reason=用户显式启动 Phase 2 美化 + 同轮 InputBar resize + i18n  user_correction=none
 2026-05-15 14:15  task=phase2-polish-v2  agent=frontend-phase2-polisher  reason=主 agent 加完 title/delete/count 后用户要"优化文字间距 + 风格"，把新元素融入设计体系 + 整体微调  user_correction=none
+2026-05-15 14:40  task=phase2-polish-v3  agent=frontend-phase2-polisher  reason=新增"调整文本大小"功能 + 用户反馈"文字贴边距离需再调"  user_correction=none
 
 ### 2026-05-15 编辑交互简化（去 edit/save 按钮 + 15s 自动保存）
 - 用户反馈"edit / save 太麻烦"，希望"开放式框框，随时改"
