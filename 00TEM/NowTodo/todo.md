@@ -3,7 +3,7 @@
 # TODO
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 13:15:00
+**更新时间**: 2026-05-15 13:30:00
 
 ## V1 MVP（已经按顺序排好）
 
@@ -59,11 +59,17 @@
 - [ ] macOS dmg 签名（暂用 ad-hoc 签名，开源后再申 dev cert）
 - [ ] Windows msi
 
-## Phase 2 美化阶段（待 Phase 1 全闭环后启动）
-- [ ] `decorations: false` + 自绘顶部 toolbar（拖动 / 折叠 / 关闭）
-- [ ] 折叠成小条形态
-- [ ] 主题（深色 / 浅色 / 半透明）
-- [ ] 视觉打磨（间距 / 字号 / 颜色）
+## Phase 2 美化（进行中 — 由 frontend-phase2-polisher 主导）
+- [x] 整体视觉打磨：design tokens / 间距 / 字号 / 圆角 / 阴影 / 过渡（详见 `docs/ui.md`）
+- [x] 深色模式优化（暖深灰系，非纯黑）
+- [x] `lucide-react` 图标替换字符（Settings/X/Copy/Check）
+- [x] 滚动条样式（细、半透明）
+- [x] hover/focus 微动效（120/180ms）
+- [x] InputBar textarea 可垂直 resize（max 60vh）
+- [x] i18n 中英文切换（Settings 加 Language）
+- [ ] `decorations: false` + 自绘顶部 toolbar（拖动 / 折叠 / 关闭）— 待后续
+- [ ] 折叠成小条形态 — 待后续
+- [ ] 手动 light/dark toggle — 待后续
 
 ## 注意事项
 - 内容字段全程当 raw text 处理，**不要**引入 react-markdown / remark / 任何 HTML sanitizer

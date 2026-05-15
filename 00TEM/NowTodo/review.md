@@ -12,6 +12,23 @@
 - 通过 4 个澄清问题确定：项目名 Perch / 数据形态混合 / 技术栈 Tauri+React / 立即建仓
 - 用户补充关键需求：**纯文本存储 + 一键复制纯文本**，避免 markdown 语法污染 → 已写入设计文档 §3 §5 §9
 
+### 2026-05-15 Phase 2 美化启动 + i18n + InputBar resize
+- 用户显式说"本次开始美化，优化 UI 设计，搞得漂亮一点，简约风格" → 按 CLAUDE.md §8 强制走 frontend-phase2-polisher（commit `5226174`）
+- 同轮顺手做：① InputBar textarea 可拖拽 resize（max 60vh） ② 加中英文切换（Settings 里 Language 选项 + 实时切换 UI 字符串）
+- polisher 主要决策（详见 `docs/ui.md`）：
+  - CSS custom properties design tokens（4/8/12/16 间距 + 11/12/13/14 字号 + 4/6 圆角 + 120/180ms 过渡）
+  - 单 accent 策略：浅色 `#2563eb` / 深色 `#3b82f6`，其余 zinc 灰阶
+  - Inter + system-ui fallback（不引 Google CDN，离线启动友好）
+  - `lucide-react` 替换所有 emoji 字符图标（Settings/X/Copy/Check）— 唯一新增依赖
+  - 深色模式用 `#18181b / #232327` 暖深灰，避开纯黑
+- i18n 架构：`src/lib/i18n.ts` 用 `useSyncExternalStore` 全局订阅；`t()` 顶层可用（`time.ts` / `clipboard.ts`），`useT()` 让组件订阅；Settings 取消时 lang preview 回滚
+- 既有 localStorage 兼容：旧 settings 自动补 `lang: "en"` 默认值
+- bundle 变化（远低于 +30% 上限）：JS 201.27→207.30KB (+3.0%) / gzip 63.35→65.68KB (+3.7%) / CSS 4.92→9.63KB
+
+## 调度日志
+
+2026-05-15 13:30  task=phase2-ui-polish  agent=frontend-phase2-polisher  reason=用户显式启动 Phase 2 美化 + 同轮 InputBar resize + i18n  user_correction=none
+
 ### 2026-05-15 编辑交互简化（去 edit/save 按钮 + 15s 自动保存）
 - 用户反馈"edit / save 太麻烦"，希望"开放式框框，随时改"
 - 改为：textarea 永远 open 可改；不再有 view/edit 二态切换、不再有 edit/save/cancel 按钮、不再有 Cmd+Enter / Esc 快捷键
@@ -65,8 +82,5 @@
 - **未验证项**：`pnpm tauri dev` GUI 启动 — 当前 CLI 环境无图形界面，需用户在本机手动跑一次确认浮窗行为
 - **Phase 1 偏差记录**：todo.md 原 S2 含 "decorations:false + 自绘 toolbar"，按 CLAUDE.md §8 Phase 1 最简原则，已挪到 Phase 2，先用系统默认窗口装饰
 
-## 调度日志
-
+<!-- 旧 ## 调度日志 段已迁至最新阶段段落上方，避免按时间倒序时被卷到底部 -->
 <!-- format: yyyy-mm-dd hh:mm  task=<id>  agent=<name>  reason=<...>  user_correction=<none | ...> -->
-
-（暂无 — 项目初始化阶段未派 subagent）
