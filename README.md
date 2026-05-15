@@ -1,52 +1,55 @@
-<!-- purpose: GitHub 公开主页 + 本地仓库导航 -->
+<!-- purpose: GitHub 公开主页 + 本地仓库导航（中文主版） -->
+
+> English → [README.en.md](./README.en.md)
 
 # Perch
 
-> Always-on-top notepad with timestamps. Perch on your screen, jot anything, copy it as clean plain text.
+> 永远置顶的桌面浮窗记事本。停在屏幕上，随手记录，**纯文本进、纯文本出**。
 
-A tiny cross-platform desktop floating notepad. Stays on top of every window, captures quick thoughts with automatic timestamps, and copies cleanly as plain text — no markdown surprises when you paste into Slack / a code comment / an email.
+一个跨平台的小工具：常驻屏幕最顶层，写一句话自动带时间戳，复制出去**不带任何 markdown 字符污染** —— 粘贴到 Slack、代码注释、邮件里都干净如初。
 
-## Features
+## 功能
 
-- **Always on top** — never hidden when you switch to Chrome, Slack, your terminal, etc.
-- **Auto-timestamped entries** — every note records when it was last edited
-- **Open editing** — every entry is a live textarea; type and walk away, autosave kicks in after 15s (also on blur and on close)
-- **Per-entry title** (optional)
-- **Soft delete** with 2-tap inline confirmation
-- **One-click copy as plain text** — title + timestamp + content; no markdown rendering anywhere, what you typed is what you paste
-- **Custom clipboard suffix/prefix** — append a signature, a tag, anything; pick before or after the body
-- **Local-first** — data lives in SQLite under your app data dir; no account, no sync, no telemetry
-- **i18n** — English / 中文
-- **Light & dark** — follows system preference, designed in both
-- **Adjustable text size** — Small / Medium / Large via Settings
+- **永远置顶**：切到 Chrome / Claude Code / 终端，浮窗都不消失
+- **自动时间戳**：每条记录留有最后编辑时刻
+- **开放式编辑**：每条 entry 都是一个 live textarea，输入即改，**停手 15 秒自动保存**（焦点离开、关窗时也兜底保存）
+- **每条独立标题**（可选）
+- **软删除**：两步确认（红色 "Confirm" 4 秒倒计时，反悔无门槛）
+- **一键复制纯文本**：title + 时间戳 + 内容，全程不渲染 markdown，**你打的什么就粘出什么**
+- **自定义剪贴板前缀 / 后缀**：附加签名、标签、引用前缀，自选放在内容前还是后
+- **本地优先**：数据进本地 SQLite（应用数据目录），无账号 / 无同步 / 无遥测
+- **中英双语**：Settings 内一键切换
+- **浅色 / 深色双主题**：跟随系统偏好
+- **字号 3 档可调**：Small / Medium / Large
 
-## Status
+## 状态
 
-V1 MVP — runs from source on macOS and Windows. Pre-built binaries not yet shipped.
+V1 MVP — 在 macOS / Windows 上可从源码运行。**暂未发布预编译二进制**。
 
-See [`docs/design/0515-1146-design.md`](./docs/design/0515-1146-design.md) for the full product brief and roadmap.
+完整产品设计 & 路线图见 [`docs/design/0515-1146-design.md`](./docs/design/0515-1146-design.md)。
+UI 设计决策见 [`docs/ui.md`](./docs/ui.md)。
 
-## Tech stack
+## 技术栈
 
-| Layer | Choice |
+| 层 | 选型 |
 |---|---|
-| Shell | [Tauri 2](https://tauri.app/) (Rust) |
+| 桌面容器 | [Tauri 2](https://tauri.app/)（Rust） |
 | UI | React 19 + TypeScript + Vite 7 |
-| Storage | SQLite via `tauri-plugin-sql` |
-| Icons | `lucide-react` |
-| Targets | macOS (universal), Windows (x64) |
+| 存储 | SQLite，经 `tauri-plugin-sql` |
+| 图标 | `lucide-react` |
+| 目标平台 | macOS（universal）、Windows（x64） |
 
-## Getting started
+## 快速开始
 
-### Prerequisites
+### 前置依赖
 
-- Node 20+ (tested on 24)
-- pnpm 9+ (`corepack enable` will do)
-- Rust stable (1.77+, install via [rustup](https://rustup.rs/))
-- macOS: Xcode Command Line Tools (`xcode-select --install`)
-- Windows: Visual Studio Build Tools 2022 (Desktop C++)
+- Node 20+（24 上测过）
+- pnpm 9+（执行 `corepack enable` 即可启用）
+- Rust stable 1.77+（用 [rustup](https://rustup.rs/) 装）
+- macOS：Xcode Command Line Tools（`xcode-select --install`）
+- Windows：Visual Studio Build Tools 2022（Desktop C++）
 
-### Run
+### 运行
 
 ```bash
 git clone https://github.com/xtianowner/perch-note.git
@@ -55,51 +58,51 @@ pnpm install
 pnpm tauri dev
 ```
 
-A 360 × 480 always-on-top window will appear. Type into the bottom bar, hit Enter, watch it land in the list above. Open Settings (⚙ top-right) to tweak language, copy format, text size, etc.
+弹出一个 360 × 480 的永远置顶小窗。在底部输入框打字、回车提交，列表立刻多一条。点右上角 ⚙ 打开 Settings 调整语言 / 复制规则 / 字号等。
 
-### Build
+### 打包
 
 ```bash
 pnpm tauri build
 ```
 
-Outputs to `src-tauri/target/release/bundle/` (macOS `.app` / `.dmg`, Windows `.msi`).
+产物输出到 `src-tauri/target/release/bundle/`（macOS `.app` / `.dmg`，Windows `.msi`）。
 
-## Project layout
+## 目录结构
 
 ```
 perch-note/
-├── src/                  # React UI (TypeScript)
-│   ├── components/       # EntryList, EntryItem, InputBar, CopyButton, ...
-│   ├── lib/              # db, i18n, settings, clipboard, time, types
+├── src/                  # React UI（TypeScript）
+│   ├── components/       # EntryList、EntryItem、InputBar、CopyButton、Settings、DeleteButton
+│   ├── lib/              # db、i18n、settings、clipboard、time、types
 │   └── App.{tsx,css}
-├── src-tauri/            # Rust shell + SQLite migrations
-├── docs/                 # Design / UI / module / env docs
-└── 00TEM/                # Internal workflow (todos, reviews) — kept in repo for transparency
+├── src-tauri/            # Rust 容器 + SQLite migrations
+├── docs/                 # 设计 / UI / 模块 / 环境文档
+└── 00TEM/                # 开发流程内部资料（todo / review），保留在 repo 内便于追溯
 ```
 
-## Data location
+## 数据位置
 
-| OS | Path |
+| 操作系统 | 数据库路径 |
 |---|---|
 | macOS | `~/Library/Application Support/com.tian.perch/perch.db` |
 | Windows | `%APPDATA%\com.tian.perch\perch.db` |
 
-It's a plain SQLite file. Back it up, inspect it with `sqlite3`, copy it between machines — it's yours.
+就是个标准 SQLite 文件。可以备份、`sqlite3` 命令行直接打开看、设备间复制 —— 你的数据是你的。
 
-## Roadmap
+## 路线图
 
-- [ ] Pre-built signed binaries (macOS `.dmg` + Windows `.msi`)
-- [ ] Global hotkey to focus the window
-- [ ] System tray + collapse-to-strip mode
-- [ ] Custom title bar (drop the system chrome)
-- [ ] Search / tag / pin
-- [ ] Export (JSON / txt / CSV)
-- [ ] Optional sync
+- [ ] 预编译已签名的二进制（macOS `.dmg` + Windows `.msi`）
+- [ ] 全局快捷键唤起 / 隐藏窗口
+- [ ] 系统托盘 + 折叠成小条
+- [ ] 自绘 toolbar（去掉系统标题栏）
+- [ ] 搜索 / 标签 / 置顶
+- [ ] 导出（JSON / txt / CSV）
+- [ ] 可选云同步
 
-## Contributing
+## 贡献
 
-Issues and PRs welcome. Please open an issue before large changes so we can align on direction.
+欢迎 issue 和 PR。大改动请先开 issue 对齐方向再动手，免得双方做白工。
 
 ## License
 
