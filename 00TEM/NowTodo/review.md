@@ -3,7 +3,7 @@
 # Review
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 12:05:00
+**更新时间**: 2026-05-15 12:25:00
 
 ## 阶段总结
 
@@ -11,6 +11,15 @@
 - 用户提出"永远置顶 + 时间戳记录"的桌面工具需求
 - 通过 4 个澄清问题确定：项目名 Perch / 数据形态混合 / 技术栈 Tauri+React / 立即建仓
 - 用户补充关键需求：**纯文本存储 + 一键复制纯文本**，避免 markdown 语法污染 → 已写入设计文档 §3 §5 §9
+
+### 2026-05-15 S4 UI 骨架前置（Phase 1，in-memory）
+- 用户首跑 dev 后发现 demo "Welcome to Tauri+React" 页在小窗里被挤压 → 直接前置 S4 UI 骨架，不留 demo 占位
+- 删除：`greet` Rust command + 三个 logo svg + demo App.tsx/css
+- 新增组件分层（为 Phase 2 美化预留）：`components/{EntryList,EntryItem,InputBar,CopyButton}.tsx` + `lib/{types,time}.ts`
+- 布局：flex 纵向，列表 `flex:1 + overflow-y:auto`，输入栏 `flex:0 0 auto` 固定底部 → 任意窗口尺寸自适应
+- 数据：`useState<Entry[]>` 临时内存存储，S3 切 SQLite 时只换 hook，UI 零改动
+- 纯文本原则严格执行：`white-space: pre-wrap`，无 react-markdown / remark
+- IME 防误触：`!e.nativeEvent.isComposing` 处理中文输入法 composing 状态下 Enter
 
 ### 2026-05-15 S1 Tauri scaffold
 - 环境安装：corepack 启用 pnpm 11.1.2；rustup 装 stable 1.95.0；Xcode CLT 已就绪

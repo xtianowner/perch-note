@@ -3,7 +3,7 @@
 # TODO
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 12:05:00
+**更新时间**: 2026-05-15 12:25:00
 
 ## V1 MVP（已经按顺序排好）
 
@@ -17,23 +17,29 @@
 - [x] 选择 React + TypeScript + Vite 模板（Tauri 2.x）
 - [x] 配置改名 productName/title → "Perch"，identifier com.tian.perch
 - [x] `pnpm install` + `pnpm build`（vite）+ `cargo check`（src-tauri）全部通过
-- [ ] **需用户手动验证**：`pnpm tauri dev` 启动浮窗（CLI 环境无法测 GUI）
+- [x] `pnpm tauri dev` 启动浮窗（用户已确认窗口弹出）
 
 ### S2 窗口行为
 - [x] `tauri.conf.json` 设 `alwaysOnTop: true`、初始尺寸 360×480
-- [ ] Mac 测试：与 Chrome / Claude Code 切换均不丢
+- [ ] Mac 测试：与 Chrome / Claude Code 切换均不丢（待用户切窗体验后确认）
 - [ ] Win 测试（VM 或实机）
 - ~~`decorations: false` + 自绘 toolbar~~ → 挪到 **Phase 2 美化阶段**，Phase 1 保留默认窗口装饰
 
-### S3 数据层
+### S4 UI 骨架（Phase 1，先于 S3，用 in-memory 存储）
+- [x] 删 Tauri demo（greet command / 三 logo / "Welcome to Tauri+React"）
+- [x] `EntryList` + `EntryItem` + `InputBar` + `CopyButton` 组件分层
+- [x] 时间戳格式化（`lib/time.ts`，相对时间 + hover 绝对时间）
+- [x] **纯文本渲染**：`white-space: pre-wrap` 的 `<div>`，无 markdown 库
+- [x] flex 布局自适应任意窗口尺寸（列表区滚动 + 输入栏固定底部）
+- [x] IME 友好（中文输入法 composing 时 Enter 不提交）
+- [x] 深色模式 (`prefers-color-scheme: dark`)
+- [ ] 待用户手动测：输入条目、复制按钮、相对时间显示
+
+### S3 数据层（in-memory → SQLite 切换）
 - [ ] 接入 `tauri-plugin-sql`
 - [ ] 建表 SQL（见设计文档 §5）
 - [ ] Rust 侧 `entry-repo` 模块实现 CRUD
-
-### S4 UI（Phase 1 功能链路，默认样式）
-- [ ] `EntryList` + `InputBar` + `CopyButton`
-- [ ] 时间戳格式化（相对时间）
-- [ ] **纯文本渲染**：列表用 `white-space: pre-wrap` 的 `<div>`，禁止任何 markdown 库
+- [ ] 把 App.tsx 里的 `useState<Entry[]>` 换成 SQLite-backed hook，UI 一行不动
 
 ### S5 打包
 - [ ] macOS dmg 签名（暂用 ad-hoc 签名，开源后再申 dev cert）
