@@ -1,37 +1,106 @@
-<!-- purpose: 项目入口 README, 用于 GitHub 公开主页和本地导航 -->
+<!-- purpose: GitHub 公开主页 + 本地仓库导航 -->
 
 # Perch
 
-> Always-on-top notepad with timestamps. Perch on your screen, jot anything, never lose a thought.
+> Always-on-top notepad with timestamps. Perch on your screen, jot anything, copy it as clean plain text.
 
-**创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 11:46:39
+A tiny cross-platform desktop floating notepad. Stays on top of every window, captures quick thoughts with automatic timestamps, and copies cleanly as plain text — no markdown surprises when you paste into Slack / a code comment / an email.
 
----
+## Features
 
-## What is Perch?
-
-Perch 是一个跨平台（macOS / Windows）的桌面浮窗记录工具：
-
-- **永远置顶**：不被其他窗口遮挡，焦点切换不隐藏
-- **时间戳记录**：每条记录自动带创建时刻
-- **混合数据形态**：默认追加时间流（timeline），允许回头编辑任意条目
-- **本地优先**：数据存本地 SQLite，零云依赖
-- **轻量常驻**：基于 Tauri，包体积 < 10MB，内存占用低
+- **Always on top** — never hidden when you switch to Chrome, Slack, your terminal, etc.
+- **Auto-timestamped entries** — every note records when it was last edited
+- **Open editing** — every entry is a live textarea; type and walk away, autosave kicks in after 15s (also on blur and on close)
+- **Per-entry title** (optional)
+- **Soft delete** with 2-tap inline confirmation
+- **One-click copy as plain text** — title + timestamp + content; no markdown rendering anywhere, what you typed is what you paste
+- **Custom clipboard suffix/prefix** — append a signature, a tag, anything; pick before or after the body
+- **Local-first** — data lives in SQLite under your app data dir; no account, no sync, no telemetry
+- **i18n** — English / 中文
+- **Light & dark** — follows system preference, designed in both
+- **Adjustable text size** — Small / Medium / Large via Settings
 
 ## Status
 
-> 早期设计阶段 — 暂未发布二进制。
+V1 MVP — runs from source on macOS and Windows. Pre-built binaries not yet shipped.
 
-详见 [docs/design/](./docs/design/) 中的设计文档与路线图。
+See [`docs/design/0515-1146-design.md`](./docs/design/0515-1146-design.md) for the full product brief and roadmap.
 
-## Tech Stack
+## Tech stack
 
-- **Shell**: [Tauri 2.x](https://tauri.app/) (Rust)
-- **UI**: React 18 + TypeScript + Vite
-- **Storage**: SQLite (via `tauri-plugin-sql`)
-- **Build targets**: macOS (universal), Windows (x64)
+| Layer | Choice |
+|---|---|
+| Shell | [Tauri 2](https://tauri.app/) (Rust) |
+| UI | React 19 + TypeScript + Vite 7 |
+| Storage | SQLite via `tauri-plugin-sql` |
+| Icons | `lucide-react` |
+| Targets | macOS (universal), Windows (x64) |
+
+## Getting started
+
+### Prerequisites
+
+- Node 20+ (tested on 24)
+- pnpm 9+ (`corepack enable` will do)
+- Rust stable (1.77+, install via [rustup](https://rustup.rs/))
+- macOS: Xcode Command Line Tools (`xcode-select --install`)
+- Windows: Visual Studio Build Tools 2022 (Desktop C++)
+
+### Run
+
+```bash
+git clone https://github.com/xtianowner/perch-note.git
+cd perch-note
+pnpm install
+pnpm tauri dev
+```
+
+A 360 × 480 always-on-top window will appear. Type into the bottom bar, hit Enter, watch it land in the list above. Open Settings (⚙ top-right) to tweak language, copy format, text size, etc.
+
+### Build
+
+```bash
+pnpm tauri build
+```
+
+Outputs to `src-tauri/target/release/bundle/` (macOS `.app` / `.dmg`, Windows `.msi`).
+
+## Project layout
+
+```
+perch-note/
+├── src/                  # React UI (TypeScript)
+│   ├── components/       # EntryList, EntryItem, InputBar, CopyButton, ...
+│   ├── lib/              # db, i18n, settings, clipboard, time, types
+│   └── App.{tsx,css}
+├── src-tauri/            # Rust shell + SQLite migrations
+├── docs/                 # Design / UI / module / env docs
+└── 00TEM/                # Internal workflow (todos, reviews) — kept in repo for transparency
+```
+
+## Data location
+
+| OS | Path |
+|---|---|
+| macOS | `~/Library/Application Support/com.tian.perch/perch.db` |
+| Windows | `%APPDATA%\com.tian.perch\perch.db` |
+
+It's a plain SQLite file. Back it up, inspect it with `sqlite3`, copy it between machines — it's yours.
+
+## Roadmap
+
+- [ ] Pre-built signed binaries (macOS `.dmg` + Windows `.msi`)
+- [ ] Global hotkey to focus the window
+- [ ] System tray + collapse-to-strip mode
+- [ ] Custom title bar (drop the system chrome)
+- [ ] Search / tag / pin
+- [ ] Export (JSON / txt / CSV)
+- [ ] Optional sync
+
+## Contributing
+
+Issues and PRs welcome. Please open an issue before large changes so we can align on direction.
 
 ## License
 
-MIT (planned)
+[MIT](./LICENSE) © 2026 Tian
