@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import type { Entry } from "../lib/types";
 import type { Settings } from "../lib/settings";
 import { formatRelative, formatAbsolute } from "../lib/time";
+import { buildClipboardText } from "../lib/clipboard";
 import { useT } from "../lib/i18n";
 import { CopyButton } from "./CopyButton";
 import { DeleteButton } from "./DeleteButton";
@@ -38,10 +39,9 @@ export function EntryItem({ entry, settings, onUpdate, onDelete }: Props) {
   const flush = useCallback(async () => {
     const c = contentRef.current.trim();
     const tt = titleRef.current.trim();
-    if (!c) return;
     if (
-      c === originalContentRef.current &&
-      tt === originalTitleRef.current
+      c === originalContentRef.current.trim() &&
+      tt === originalTitleRef.current.trim()
     ) {
       return;
     }
@@ -49,6 +49,18 @@ export function EntryItem({ entry, settings, onUpdate, onDelete }: Props) {
     setSavedFlash(true);
     window.setTimeout(() => setSavedFlash(false), 1500);
   }, []);
+
+  function buildLiveCopyText(): string {
+    const content = contentDraft.trim();
+    const title = titleDraft.trim();
+    const changed =
+      content !== entry.content.trim() || title !== entry.title.trim();
+    const updatedAt = changed ? Date.now() : entry.updatedAt;
+    return buildClipboardText(
+      { ...entry, content, title, updatedAt },
+      settings,
+    );
+  }
 
   useEffect(() => {
     if (
@@ -94,7 +106,7 @@ export function EntryItem({ entry, settings, onUpdate, onDelete }: Props) {
         </span>
         <div className="entry-actions">
           <DeleteButton onConfirm={() => void onDelete(entry.id)} />
-          <CopyButton entry={entry} settings={settings} />
+          <CopyButton buildText={buildLiveCopyText} />
         </div>
       </div>
       <input

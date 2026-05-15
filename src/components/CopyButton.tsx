@@ -1,22 +1,18 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
-import type { Entry } from "../lib/types";
-import type { Settings } from "../lib/settings";
-import { buildClipboardText } from "../lib/clipboard";
 import { useT } from "../lib/i18n";
 
 type Props = {
-  entry: Entry;
-  settings: Settings;
+  buildText: () => string;
 };
 
-export function CopyButton({ entry, settings }: Props) {
+export function CopyButton({ buildText }: Props) {
   const t = useT();
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
     try {
-      const text = buildClipboardText(entry, settings);
+      const text = buildText();
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
