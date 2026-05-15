@@ -17,6 +17,7 @@
   --radius-md: 6px;
 
   /* font sizes */
+  --fs-10: 10px;
   --fs-11: 11px;
   --fs-12: 12px;
   --fs-13: 13px;
@@ -41,6 +42,10 @@
   --accent-hover: #1d4ed8;
   --accent-soft: rgba(37, 99, 235, 0.15);
   --success: #16a34a;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-soft: rgba(220, 38, 38, 0.08);
+  --danger-soft-strong: rgba(220, 38, 38, 0.15);
   --scrollbar: rgba(0, 0, 0, 0.12);
 
   /* shadows */
@@ -66,6 +71,10 @@
     --accent-hover: #60a5fa;
     --accent-soft: rgba(59, 130, 246, 0.22);
     --success: #4ade80;
+    --danger: #f87171;
+    --danger-hover: #fca5a5;
+    --danger-soft: rgba(248, 113, 113, 0.12);
+    --danger-soft-strong: rgba(248, 113, 113, 0.2);
     --scrollbar: rgba(255, 255, 255, 0.14);
 
     --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -94,12 +103,13 @@ body,
 body {
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: var(--fs-13);
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--text-1);
   background: var(--bg-app);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  text-rendering: optimizeLegibility;
 }
 
 button {
@@ -121,6 +131,7 @@ button {
 *::-webkit-scrollbar-thumb {
   background: var(--scrollbar);
   border-radius: 4px;
+  min-height: 24px;
 }
 *::-webkit-scrollbar-thumb:hover {
   background: var(--border-strong);
@@ -155,7 +166,8 @@ button {
   padding: 0;
   transition:
     color var(--dur-base) var(--ease),
-    background var(--dur-base) var(--ease);
+    background var(--dur-base) var(--ease),
+    box-shadow var(--dur-base) var(--ease);
 }
 .settings-trigger:hover {
   color: var(--text-1);
@@ -163,14 +175,14 @@ button {
 }
 .settings-trigger:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /* ---------- entry list ---------- */
 .entry-list {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: var(--space-3) var(--space-2) var(--space-2);
+  padding: var(--space-4) var(--space-2) var(--space-2);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -181,13 +193,15 @@ button {
   text-align: center;
   padding: var(--space-6) var(--space-4);
   font-size: var(--fs-12);
+  line-height: 1.6;
+  letter-spacing: 0.005em;
 }
 
 /* ---------- entry item ---------- */
 .entry-item {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3) var(--space-3);
   background: var(--bg-surface);
   box-shadow: var(--shadow-1);
   transition:
@@ -207,12 +221,12 @@ button {
   color: var(--text-2);
   margin-bottom: var(--space-1);
   gap: var(--space-2);
-  min-height: 18px;
+  min-height: 20px;
 }
 
 .entry-time {
   cursor: default;
-  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .entry-edited-mark {
@@ -227,15 +241,18 @@ button {
   align-items: center;
   gap: 2px;
   opacity: 0;
-  animation: fade-in var(--dur-base) var(--ease) forwards;
+  transform: translateY(-1px);
+  animation: fade-in-up var(--dur-base) var(--ease) forwards;
 }
 
-@keyframes fade-in {
+@keyframes fade-in-up {
   from {
     opacity: 0;
+    transform: translateY(-1px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -244,7 +261,7 @@ button {
   width: 100%;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: var(--fs-13);
-  line-height: 1.5;
+  line-height: 1.55;
   color: inherit;
   background: transparent;
   border: 1px solid transparent;
@@ -281,13 +298,16 @@ button {
   padding: 3px var(--space-2);
   border-radius: var(--radius-sm);
   font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   transition:
     color var(--dur-base) var(--ease),
-    background var(--dur-base) var(--ease);
+    background var(--dur-base) var(--ease),
+    box-shadow var(--dur-base) var(--ease);
 }
 .copy-btn:hover {
   color: var(--text-1);
@@ -295,7 +315,7 @@ button {
 }
 .copy-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .copy-btn.is-copied {
   color: var(--success);
@@ -316,7 +336,8 @@ button {
   padding: 0;
   transition:
     color var(--dur-base) var(--ease),
-    background var(--dur-base) var(--ease);
+    background var(--dur-base) var(--ease),
+    box-shadow var(--dur-base) var(--ease);
 }
 .icon-btn:hover {
   color: var(--text-1);
@@ -324,37 +345,39 @@ button {
 }
 .icon-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /* ---------- entry count badge ---------- */
 .entry-count {
   position: absolute;
-  top: 10px;
+  top: 8px;
   right: 38px;
   z-index: 10;
-  font-size: var(--fs-11);
+  font-size: var(--fs-10);
   color: var(--text-3);
   pointer-events: none;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
   font-weight: 500;
+  opacity: 0.85;
+  line-height: 26px; /* match settings-trigger height for vertical alignment */
 }
 
 /* ---------- entry title (single-line input) ---------- */
 .entry-title {
   width: 100%;
   font-family: inherit;
-  font-size: var(--fs-14);
+  font-size: var(--fs-13);
   font-weight: 600;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.01em;
   color: inherit;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-2);
-  margin: 0 0 2px;
+  margin: 0 0 var(--space-1);
   outline: none;
   transition:
     border-color var(--dur-base) var(--ease),
@@ -365,6 +388,7 @@ button {
   color: var(--text-3);
   font-weight: 400;
   font-style: italic;
+  letter-spacing: 0;
 }
 .entry-title:hover {
   border-color: var(--border);
@@ -385,29 +409,20 @@ button {
 
 /* ---------- delete button (variant of copy-btn) ---------- */
 .delete-btn:hover {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.08);
+  color: var(--danger);
+  background: var(--danger-soft);
 }
 .delete-btn.is-confirming {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.15);
+  color: var(--danger);
+  background: var(--danger-soft-strong);
+  font-weight: 600;
 }
 .delete-btn.is-confirming:hover {
-  background: rgba(220, 38, 38, 0.22);
+  background: var(--danger-soft-strong);
+  filter: brightness(1.05);
 }
-
-@media (prefers-color-scheme: dark) {
-  .delete-btn:hover {
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.12);
-  }
-  .delete-btn.is-confirming {
-    color: #fca5a5;
-    background: rgba(248, 113, 113, 0.18);
-  }
-  .delete-btn.is-confirming:hover {
-    background: rgba(248, 113, 113, 0.26);
-  }
+.delete-btn:focus-visible {
+  box-shadow: 0 0 0 3px var(--danger-soft);
 }
 
 /* ---------- input bar ---------- */
@@ -422,7 +437,7 @@ button {
   width: 100%;
   font-family: inherit;
   font-size: var(--fs-13);
-  line-height: 1.5;
+  line-height: 1.55;
   resize: vertical;
   min-height: 44px;
   max-height: 60vh;
@@ -438,6 +453,7 @@ button {
 }
 .input-textarea::placeholder {
   color: var(--text-3);
+  letter-spacing: 0.005em;
 }
 .input-textarea:focus {
   border-color: var(--accent);
@@ -527,7 +543,7 @@ button {
   font-size: var(--fs-11);
   color: var(--text-2);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   font-weight: 500;
 }
 
@@ -592,7 +608,7 @@ button {
   font-size: var(--fs-11);
   color: var(--text-2);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   font-weight: 500;
   margin-bottom: var(--space-1);
 }
@@ -600,7 +616,7 @@ button {
 .settings-preview-text {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: var(--fs-12);
-  line-height: 1.5;
+  line-height: 1.55;
   white-space: pre-wrap;
   word-break: break-word;
   margin: 0;

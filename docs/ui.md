@@ -3,7 +3,7 @@
 # Perch — UI 设计决策
 
 **创建时间**: 2026-05-15 12:58:07
-**更新时间**: 2026-05-15 12:58:07
+**更新时间**: 2026-05-15 14:20:00
 
 ---
 
@@ -202,3 +202,46 @@
 - [x] 双主题已打磨（深色非纯黑）
 - [x] InputBar resize 上限 60vh，不会挤掉列表
 - [x] **未触碰**数据层 / 自动保存 / `buildClipboardText` 输出格式 / 窗口配置
+
+---
+
+## v2 polish (2026-05-15)
+
+第二轮微调。背景：主 agent 在 v1 后续增加了 title input / DeleteButton / entry-count 三类新元素（commit `c380560` + `98db887`），是用 v1 design tokens 凭手感拼的，需要"二次熔接"。用户原话："文字间距、风格设计等"。
+
+按 ui-ux-pro-max 的 Typography & Color (MEDIUM) + Touch & Interaction (CRITICAL) + Animation (MEDIUM) + Style consistency (MEDIUM) 优先级清单，做以下调整：
+
+1. **Title 字号 + 字重重排（核心）**：`fs-14 / weight 600 / letter-spacing -0.005em` → `fs-13 / weight 600 / letter-spacing -0.01em`。理由：360×480 小窗内 14px+600 视觉过重，title 一旦填写就压过 textarea 内容；同字号靠字重区分层级符合 Swiss minimal 原则（Tschichold "类型层级靠字重而非字号"）。title 与 body content 同尺度，title 字重 600、body 400，hierarchy 清晰且不喧哗。
+
+2. **新增 `--danger / --danger-hover / --danger-soft / --danger-soft-strong` 4 个 token**（浅 `#dc2626` 系 / 深 `#f87171` 系），把 DeleteButton 里 4 处 hardcoded `#dc2626`/`#f87171`/`rgba(220,38,38,*)` 全部归 token。理由：与 accent / success 同等级；以后若做主题切换不会漏。
+
+3. **行高与字号微调**：body line-height `1.5 → 1.55`；textarea / preview-text / input-textarea 同步 `1.5 → 1.55`。理由：ui-ux-pro-max line-height 推荐 1.5–1.75，Inter 在 13px 下偏紧，1.55 给中文混排留口气。
+
+4. **`font-variant-numeric: tabular-nums` 扩到 `.entry-time`**：之前只在 entry-count 用。理由：相对时间含数字（"5 min ago" / "5 分钟前"），数字宽度抖动会让 header 行右侧 actions 跟着抖；tabular-nums 稳定。移除原 `.entry-time` 的 `letter-spacing: 0.01em`（与字号 11px 配字间距过松）。
+
+5. **entry-count 重新定位 + 缩字号**：`fs-11 → fs-10` (10px)、`top: 10px → 8px`、`letter-spacing: 0.04em → 0.08em`、加 `opacity: 0.85`、加 `line-height: 26px` 与 settings-trigger 视觉基线对齐。理由：作为静默状态徽标，应该比 secondary text 还轻一档；10px + uppercase + tracking 是经典 micro-label 风格。
+
+6. **entry-item 内部密度重排**：padding 由 `var(--space-2) var(--space-3)` (8/12) 调整为 `var(--space-2) var(--space-3) var(--space-3)` (上 8 / 左右 12 / 下 12)；title 与 textarea 之间 `margin-bottom: 2px → var(--space-1)` (4px)；entry-header `min-height: 18px → 20px`。理由：v1 上下 8px 在 v2 加了 title 后过紧，下方多 4px 让 title + textarea 视觉分组更清；header 高度 20 留出 saved-mark 动画空间。
+
+7. **focus halo 全局统一为 3px**：settings-trigger / icon-btn / copy-btn 的 focus ring 从 2px 提升到 3px，与 textarea / input 等输入控件保持同一规格。理由：UX rule `focus-states` (CRITICAL)，多档 ring 让视觉不统一。
+
+8. **saved-mark 动画升级**：`opacity fade-in` → `opacity + translateY(-1px → 0)`，符合 ui-ux-pro-max `transform-performance` 规则（用 transform/opacity，不用 width/height/top）。视觉上"轻轻浮上来"。
+
+9. **DeleteButton 第二态视觉强化**：confirming 状态除背景加深外，新增 `font-weight: 600`（普通 copy-btn 默认 500）。理由：v1 hover 与 confirming 仅靠背景颜色区分，色弱用户难辨；字重加权是第二信号。
+
+10. **滚动条 thumb min-height: 24px**：避免内容很多时滑块太小难抓。`empty-state` 加 `letter-spacing: 0.005em` + `line-height: 1.6`，长占位提示更舒展。
+
+11. **Settings label tracking 加宽**：`letter-spacing 0.04em → 0.06em`。理由：11px uppercase label 在 0.04em 下字符间距偏紧，看着像被压扁；0.06em 是 Inter 在 small caps 风格下的常见 tracking。
+
+12. **`--fs-10: 10px`** 新增到 design tokens（仅供 entry-count 这一处用）；`text-rendering: optimizeLegibility` 加到 body（让 Inter 在 13px 显示更好）。
+
+### 不动的部分
+- design tokens 颜色（accent / success / bg / text / border 整套不动；只新增 danger 子集）
+- 间距网格 4/8/12/16（一律走 var）
+- Inter / lucide / 字体栈策略
+- 复制按钮 / settings modal 布局结构
+- i18n key 名（仅未来若需要"copying..." flash 才扩 key）
+- TSX 文件层组件结构（无新增 wrapper，无 className 改名）— v2 polish 是**纯 CSS 改动**
+
+### bundle 影响
+本轮纯 CSS，JS 0 变化；CSS 微增（多 ~0.2KB），无新增 npm 依赖。
