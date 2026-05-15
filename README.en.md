@@ -1,4 +1,6 @@
-<!-- purpose: GitHub 公开主页 + 本地仓库导航 -->
+<!-- purpose: English README (linked from the Chinese main README) -->
+
+> 中文版 → [README.md](./README.md)
 
 # Perch
 
