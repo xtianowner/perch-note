@@ -100,16 +100,18 @@ function App() {
 
   return (
     <div className="app" data-text-size={settings.textSize}>
-      <span className="entry-count">{countLabel}</span>
-      <button
-        className="settings-trigger"
-        onClick={() => setShowSettings(true)}
-        type="button"
-        title={t("settings.title")}
-        aria-label={t("settings.open")}
-      >
-        <SettingsIcon size={15} strokeWidth={1.75} aria-hidden="true" />
-      </button>
+      <div className="app-topbar">
+        <span className="entry-count">{countLabel}</span>
+        <button
+          className="settings-trigger"
+          onClick={() => setShowSettings(true)}
+          type="button"
+          title={t("settings.title")}
+          aria-label={t("settings.open")}
+        >
+          <SettingsIcon size={15} strokeWidth={1.75} aria-hidden="true" />
+        </button>
+      </div>
       <EntryList
         entries={entries}
         settings={settings}
