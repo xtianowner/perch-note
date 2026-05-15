@@ -3,7 +3,7 @@
 # TODO
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 12:25:00
+**更新时间**: 2026-05-15 12:35:00
 
 ## V1 MVP（已经按顺序排好）
 
@@ -36,10 +36,12 @@
 - [ ] 待用户手动测：输入条目、复制按钮、相对时间显示
 
 ### S3 数据层（in-memory → SQLite 切换）
-- [ ] 接入 `tauri-plugin-sql`
-- [ ] 建表 SQL（见设计文档 §5）
-- [ ] Rust 侧 `entry-repo` 模块实现 CRUD
-- [ ] 把 App.tsx 里的 `useState<Entry[]>` 换成 SQLite-backed hook，UI 一行不动
+- [x] 接入 `tauri-plugin-sql` v2.4.0（features sqlite）+ JS 端 `@tauri-apps/plugin-sql`
+- [x] 建表 SQL（entries 表 + 2 索引；走 plugin 的 migrations API，version=1）
+- ~~Rust 侧 `entry-repo` 模块实现 CRUD~~ → 弃用，改用 `src/lib/db.ts` 前端直发 SQL（见 docs/modules.md 弃用决策）
+- [x] App.tsx 改成 `useEffect` 启动加载 + insert 后追加；loading / error 状态分支
+- [x] capabilities 加 sql:default / allow-execute / allow-select / allow-load / allow-close
+- [ ] **需用户手动验证**：杀掉旧 `pnpm tauri dev`、重启（Rust 改动 HMR 不生效）；输入条目后关窗、再开，数据应当还在
 
 ### S5 打包
 - [ ] macOS dmg 签名（暂用 ad-hoc 签名，开源后再申 dev cert）

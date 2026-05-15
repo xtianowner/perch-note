@@ -3,7 +3,7 @@
 # Review
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 12:25:00
+**更新时间**: 2026-05-15 12:35:00
 
 ## 阶段总结
 
@@ -11,6 +11,15 @@
 - 用户提出"永远置顶 + 时间戳记录"的桌面工具需求
 - 通过 4 个澄清问题确定：项目名 Perch / 数据形态混合 / 技术栈 Tauri+React / 立即建仓
 - 用户补充关键需求：**纯文本存储 + 一键复制纯文本**，避免 markdown 语法污染 → 已写入设计文档 §3 §5 §9
+
+### 2026-05-15 S3 接入 SQLite 持久化
+- 走 `tauri-plugin-sql` v2.4.0（features=sqlite，底层 sqlx），不手写 rusqlite
+- 迁移用 plugin 的 `Migration { version: 1 }` API：建 entries 表（id/content/created_at/updated_at/pinned/deleted_at）+ 2 索引
+- 前端 `src/lib/db.ts` 封装 `listEntries()` / `insertEntry()`，App.tsx 用 useEffect 启动加载
+- **设计偏差**：原 modules.md 列了 `entry-repo (Rust)` 模块；plugin-sql 让 TS 端直接发 SQL（IPC 走到 Rust 端 sqlx 执行），没必要再手写一层 Rust repo → 已在 docs/modules.md 标弃用，复杂事务/全文搜索时再切回手写
+- DB 路径：`sqlite:perch.db` → 实际落到 macOS `~/Library/Application Support/com.tian.perch/perch.db`，Windows `%APPDATA%/com.tian.perch/perch.db`
+- capabilities 加 sql:default + allow-execute/select/load/close（Tauri 2 严格权限模型）
+- **未验证**：用户需杀掉旧 dev 重启（Rust 代码改动不走 HMR）后做端到端持久化测试
 
 ### 2026-05-15 S4 UI 骨架前置（Phase 1，in-memory）
 - 用户首跑 dev 后发现 demo "Welcome to Tauri+React" 页在小窗里被挤压 → 直接前置 S4 UI 骨架，不留 demo 占位
