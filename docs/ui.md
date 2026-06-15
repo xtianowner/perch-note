@@ -3,7 +3,7 @@
 # Perch — UI 设计决策
 
 **创建时间**: 2026-05-15 12:58:07
-**更新时间**: 2026-05-15 16:50:00
+**更新时间**: 2026-06-15 (修改时间显示 + 字体连续缩放 + 模糊搜索)
 
 ---
 
@@ -182,7 +182,7 @@
 
 ### 9. i18n 决策
 
-- 字典 keys：`扁平.分组` 命名（如 `settings.title` / `entry.savedFlash`），避免深嵌套
+- 字典 keys：`扁平.分组` 命名（如 `settings.title` / `entry.saved` / `entry.titlePlaceholder`），避免深嵌套
 - 字符串覆盖：所有 UI 文案、时间相对单位、placeholder、aria-label
 - API：
   - `t(key, params?)` — 顶层函数（也可被非 React 模块如 `time.ts` 调用）
@@ -308,3 +308,61 @@
 - CSS 11.59KB → **11.72KB** (+0.13KB)
 - JS 209.43KB → **210.45KB** (+1.02KB：textSize 字段 + Settings panel select + 4 个 i18n key)
 - 无新增 npm 依赖
+
+---
+
+## 置顶 + 拖动排序 (2026-05-26)
+
+两项功能性扩展，按双闸门规则属 **Phase 1（功能链路）**：复用既有 design tokens 与按钮模式，**未做新的视觉决策**，精细视觉打磨（拖拽落位动画 / drop 占位提示 / 分区过渡）留待 Phase 2。
+
+- **PinButton**：`copy-btn` 的图标-only 变体（同 DeleteButton 走 `copy-btn` 基类），`is-pinned` 时图标 `fill=currentColor` + `--accent` 色；置顶项卡片根节点 `is-pinned`，加 `inset 3px 0 0 --accent` 左边条作标记。
+- **拖动手柄**：每条 header 左侧 `GripVertical`（`.drag-handle`，`cursor: grab` / `:active grabbing`，`touch-action: none` 把手势交给 dnd-kit）；drag listeners **只绑在手柄**上，避免与 textarea 文本选择冲突。拖动中卡片 `is-dragging`（`opacity: .5`）。
+- **分区**：列表按 `pinned` 拆「置顶 / 其他」两个独立 `DndContext`，跨区拖动天然不可能（与"置顶浮顶"语义一致）；有置顶项时显示 `.entry-section-label`（10px uppercase micro-label，同 entry-count 风格）。
+- **依赖 / bundle**：新增 `@dnd-kit/core + sortable + utilities`；JS ~212KB → ~260KB（gzip ~83KB）。这是本项目首个运行时 UI 依赖（此前仅 lucide-react）。
+- 选 `@dnd-kit` 而非原生 HTML5 DnD：手柄绑定干净、自带键盘可达性，避免"动态 draggable + window mouseup 兜底"那套脆弱 hack。
+
+---
+
+## 修改时间显示 + 字体连续缩放 + 模糊搜索 (2026-06-15)
+
+三项功能性扩展，按双闸门规则属 **Phase 1（功能链路）**：复用既有 design tokens 与按钮/输入模式，**未做新的视觉决策**（精细动效 / 搜索高亮 / 缩放过渡留待 Phase 2）。**未触碰数据层 / SQLite 迁移 / `buildClipboardText` / 自动保存 / 窗口配置**——零数据风险。
+
+### 2.1 修改时间显示（绝对 + 相对并排）
+- 痛点：header 之前只显示 `formatRelative(updatedAt)`（"15 h ago"），绝对修改时间藏在 hover tooltip。
+- 决策：header 改为 `绝对修改时间 · 相对时间`（如 `2026-06-15 10:49 · 15h前`）。绝对部分沿用既有 `timestampFormat` 设置（local 去秒 = `YYYY-MM-DD HH:MM`；iso = 完整 ISO），**不新增设置项**。相对部分用 `--text-3` 弱化为次要信息。
+- tooltip 升级为两行：`修改于 <full> / 创建于 <full>`（未编辑则只给创建时间）。
+- 布局护栏：`.entry-time` 加 `overflow:hidden + text-overflow:ellipsis + white-space:nowrap + min-width:0`，保证长绝对时间（尤其 ISO）截断而非把右侧 actions 挤出 280px 窗口。
+- 实现：`time.ts` 新增 `formatAbsoluteShort(ts, fmt)`；EntryItem 渲染并排两段。
+
+### 2.2 字体连续缩放（⌘ +/−/0）
+- 痛点：mac 上 `⌘ +` 不能像浏览器那样缩放 Tauri webview；旧 3 档 textSize 太粗且要进设置。
+- 决策：把离散 `textSize`（small/medium/large）升级为**连续 `fontScale`（0.7–1.8，步进 0.1）**，沿用 `--text-scale` 乘到 `--fs-11..14`（micro-label `--fs-10` 仍不缩放，保 hierarchy）。
+- 交互：全局快捷键 `⌘=`/`⌘+` 放大、`⌘-` 缩小、`⌘0` 复位（`metaKey||ctrlKey`，App 顶层 `window` keydown，`preventDefault`）；设置面板内提供 `− 110% + ⟲` 步进器作为可发现入口。
+- 单一真相源：`fontScale` 存在 `settings`，App 用**内联 `style={{'--text-scale': fontScale}}`** 注入根（取代旧 `data-text-size` 属性 + 3 条 CSS 规则）。键盘与步进器走同一条 `setFontScale`/`adjustFontScale`（functional setState + 立即 `saveSettings`），**即时生效、即时持久化、不走 draft/save**；设置面板 `save()` 用 live `fontScale` 而非 draft 快照，避免被开面板时的旧值覆盖。
+- 迁移：`loadSettings` 把旧 `textSize` 映射成 scale（large→1.12 等），老用户无感；`clampFontScale` 钳制范围并保留 2 位小数防 ±0.1 浮点漂移。
+
+### 2.3 模糊搜索（⌘F / 图标唤起）
+- 入口：顶栏放搜索图标，点击或 `⌘F` 唤起；`Esc` 或 ✕ 收起并清空。唤起时搜索框**接管整条顶栏**（图标 + 输入 + 匹配数 + 关闭），平时让位给 entry-count + 图标组，省空间、合 mac 习惯。
+- 匹配：`search.ts` **子串包含匹配**——查询按空格拆 token，每 token 须为 `title\ncontent` 的**子串（大小写不敏感 contains）**，多 token AND；空查询匹配全部。
+  - **教训（启动后用户实测发现并修正）**：初版用"有序子序列"做模糊，结果太松——`todo`/`sub`/`xtian` 这类短词在中英混排笔记里几乎能在每条都拼出有序子序列，搜索返回几乎全部条目，**失去定位意义**。改为子串包含后，`todo`→2 条真含 TODO、`服务器 密码`→精确 1 条。结论：个人记事本搜索用 contains 才符合直觉，子序列 fuzzy 只适合候选集小且唯一性强的场景（如命令面板）。
+- **卡内命中高亮 + 滚动定位**（用户实测后补，2026-06-15）：搜索激活时把内容从 `<textarea>` 换成**带高亮的只读 `<div class="entry-content-view">`**——`highlight.tsx` 把内容按命中区间切成文本/`<mark>` 段直接渲染成真实可见文字（`<mark>` 背景 `--search-hit` 琥珀、文字 `color: inherit`）。点击内容 → `editing=true` 切回 textarea 并 focus；blur → flush + 回只读视图；query 变化 → 重置 `editing` 保证新搜索总是高亮视图。**自动滚动到首个命中**：第一个 `<mark>` 挂 `firstMarkRef`，`view.scrollTop = mark.offsetTop - 8`。
+  - **教训（overlay 方案两次对不齐后否定）**：先试"透明文字 textarea + 背后 `<mark>` 高亮层"的 overlay，要求两层文本度量逐像素一致。①第一次：`scrollbar-gutter` 在 textarea 占 8px 而 `overflow:hidden` 的 backdrop 不占 → 宽度差致换行漂移。②隐藏滚动条令两侧满宽后**仍偏一行**——overlay 受 textarea 与 div 的渲染细节（首行基线、滚动坐标系、padding 计入 offsetTop 与否）影响，**在无法看 GUI 逐像素调时不可靠**。结论：**高亮要画在真实文字上（read-view），别用第二层去对齐**——结构上消除对齐问题，比把 overlay 调准更稳。代价：搜索时内容只读、需点击进入编辑（可接受，搜索语境本就以"找"为主）。**限制**：title（`<input>`）暂不高亮（短、本就可见）。
+- 拖拽互斥：搜索激活（query 非空）时 `searchActive→dndDisabled` 透传到 EntryItem（`useSortable({disabled})` + 隐藏手柄）。**理由**：过滤子集上拖动会把 `sort_order` 写到错误邻居，污染数据；直接禁用最稳。
+- 状态隔离：过滤只作用于渲染（`visibleEntries`）；insert/update/delete/pin/reorder 仍操作完整 `entries`，乐观更新与搜索互不干扰；编辑中卡片即便因 flush 后不再匹配而被过滤，unmount flush 仍保证不丢数据。
+
+### 设计修订：Copy/Delete 改纯图标（否定 Phase-2"图标+文字"决策）
+- **背景**：2.1 把 header 时间从"15h前"扩成"绝对 · 相对"并排后，在用户的 `large`(112%) 字体 + 默认窗口下，带文字的 Copy/Delete 按钮挤占 header，"· 相对时间"被省略号截断。
+- **决策（经用户确认）**：把 Copy/Delete 收敛为**纯图标**（与 PinButton 同款 `copy-btn` 图标变体），释放 ~80px 让"绝对 · 相对"完整显示。Copy 始终图标（copied 态 = `Check` + `--success`）；Delete 默认图标、**仅 confirming 态显"再点确认"文字**（红底 + 文字双信号，保留两步删除的可辨识性）；两者补 `title` tooltip + `aria-label` 保可达性。
+- **教训留痕（§5 图标策略 / v2 §1 原定"copy 文字按钮 → Copy + 文字组合"被本轮否定）**：小窗工具里"图标+文字"动作按钮的横向成本会和任何新增 header 信息直接竞争；动作按钮优先图标化、把文字让给信息密度。后续 Phase 2 若再加 header 元素，按此约束评估。
+
+### 复查修复（2026-06-15 多 agent 对抗审查后）
+本轮功能跑了一轮 6 维度 × 对抗验证的 review（32 发现 → 确证 12）。修复项：
+- **EntryItem savedFlash 卸载守卫**：搜索过滤会卸载正在编辑的卡片（其 unmount flush 仍持久化），给写入后的 `setSavedFlash` 加 `mountedRef` 守卫 + 清 flash 定时器，防卸载后 setState / 残留 timer。
+- **pin 编辑中途丢屏幕编辑（旧 pin 功能遗留，顺手修）**：置顶/取消置顶会让卡片在「置顶/其他」两个独立 DndContext 子树间**重新挂载**，新实例从 `entry.content`（旧持久值）`useState` 初始化 → 屏幕上未保存编辑视觉消失（数据不丢）。修法：PinButton `onToggle` 先 `await flush()` 再 `onPin`，让乐观 setEntries 携带最新文本、重新挂载从最新内容初始化。flush 无变更时 no-op，置顶仍即时。
+- **formatAbsoluteShort(iso) 压缩**：iso 分支由完整 `toISOString()` 改 `slice(0,16)+"Z"`，与 local 去秒同样紧凑。
+- **迁移值钳制**：旧 textSize→fontScale 映射值也过 `clampFontScale`（防御性一致）。
+- 验证为"无问题"（不改）：迁移 v3 纯加列零数据风险；搜索不破坏 insert/update/delete/pin/reorder 乐观更新（均操作完整 `entries`，搜索时拖拽已禁用）。
+
+### bundle 影响
+- 无新增 npm 依赖（复用 lucide-react 的 `Search`/`Minus`/`Plus`/`RotateCcw`）。
+- CSS 11.72KB → 14.53KB；JS ~260KB → 265KB（gzip ~84KB）。新增 `search.ts` 纯函数 + SearchBar + 键盘逻辑 + Copy/Delete 图标化（净减文字渲染）。

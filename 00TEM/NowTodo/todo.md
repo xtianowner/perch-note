@@ -3,7 +3,7 @@
 # TODO
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 13:55:00
+**更新时间**: 2026-06-15
 
 ## V1 MVP（已经按顺序排好）
 
@@ -82,6 +82,44 @@
 - [ ] `decorations: false` + 自绘顶部 toolbar（拖动 / 折叠 / 关闭）— 待后续
 - [ ] 折叠成小条形态 — 待后续
 - [ ] 手动 light/dark toggle — 待后续
+
+## 功能扩展（2026-05-26）
+### 置顶
+- [x] 复用 v1 已存在的 `pinned` 列（零迁移）；`db.setPinned` + `sortEntries` 浮顶
+- [x] PinButton（`copy-btn` 图标变体）+ 置顶项 accent 左边条
+- [ ] **待用户手动测**：点置顶 → 条目浮到列表顶部；取消置顶 → 回落
+
+### 拖动排序
+- [x] migration v3 `add_sort_order_column`（追加列，旧数据零丢失）
+- [x] `@dnd-kit` 手柄拖动；置顶区 / 普通区分区独立排序，不跨区
+- [x] `db.persistOrder` 按新顺序写回 `sort_order`；`tsc` + `vite build` + `cargo check` 通过
+- [ ] **待用户手动测**：`pnpm tauri dev` 拖动手柄调整顺序，关窗重开顺序保持
+
+### 文档整理
+- [x] README ×2 / design / ui.md / modules / 00TEM 同步置顶 + 拖动
+- [x] 删除历史残留 `docs/audit/`（未跟踪的一次性审查报告）
+
+## 功能扩展（2026-06-15）2.1 修改时间 + 2.2 字体缩放 + 2.3 搜索
+### 开工前备份（已确认）
+- [x] `.backup` 快照 `perch.db` + JSON 导出 + localStorage → `00TEM/AgentBus/artifacts/0615-1108-perch-backup/`（31 行 / 6 有效，integrity ok，用户确认）
+
+### 2.1 修改时间显示
+- [x] header 改 `绝对修改时间 · 相对时间`（绝对沿用 timestampFormat 去秒；iso 压缩为 `…THH:MMZ`）；tooltip 给完整 修改/创建 时间
+- [ ] **待用户手测**：卡片头部能看到绝对修改时间；hover 看完整时间
+
+### 2.2 字体连续缩放
+- [x] `fontScale` 连续 0.7–1.8 取代 3 档 textSize（旧值自动迁移）；全局 `⌘=/⌘+/⌘-/⌘0` + 设置步进器；inline `--text-scale`
+- [ ] **待用户手测**：`⌘+`/`⌘-` 放大缩小、`⌘0` 复位；设置面板步进器；重启后字号保持
+
+### 2.3 模糊搜索
+- [x] `⌘F` / 顶栏图标唤起，`Esc` 收起；子序列模糊匹配 title+content；搜索时禁拖拽防污染 sort_order
+- [ ] **待用户手测**：`⌘F` 唤起、输入过滤、匹配数、`Esc` 收起；搜索时拖拽手柄消失
+
+### 复查 + 修订（多 agent 对抗审查后）
+- [x] Copy/Delete 改纯图标（腾 header 空间；否定 Phase-2 图标+文字，已记 ui.md）
+- [x] 顺手修旧 pin bug：编辑中途置顶不再丢屏幕编辑（pin 前 flush 草稿）
+- [x] savedFlash 卸载守卫 / iso 时间压缩 / 迁移值钳制
+- [ ] **待用户手测**：编辑一条未失焦 → 点置顶 → 文本仍在；Copy/Delete 图标点击正常、Delete 二次确认显"再点确认"
 
 ## 注意事项
 - 内容字段全程当 raw text 处理，**不要**引入 react-markdown / remark / 任何 HTML sanitizer
