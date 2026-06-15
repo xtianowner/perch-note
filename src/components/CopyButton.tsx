@@ -27,13 +27,13 @@ export function CopyButton({ buildText }: Props) {
       onClick={handleCopy}
       type="button"
       aria-label={copied ? t("entry.copied") : t("entry.copy")}
+      title={copied ? t("entry.copied") : t("entry.copy")}
     >
       {copied ? (
         <Check size={13} strokeWidth={2.25} aria-hidden="true" />
       ) : (
         <Copy size={13} strokeWidth={1.75} aria-hidden="true" />
       )}
-      <span>{copied ? t("entry.copied") : t("entry.copy")}</span>
     </button>
   );
 }

@@ -44,6 +44,8 @@ export function previewClipboardText(settings: Settings): string {
     content: t("settings.preview.mock"),
     createdAt: Date.now(),
     updatedAt: Date.now(),
+    pinned: false,
+    sortOrder: 0,
   };
   return buildClipboardText(mockEntry, settings);
 }

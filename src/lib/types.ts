@@ -4,4 +4,6 @@ export type Entry = {
   content: string;
   createdAt: number;
   updatedAt: number;
+  pinned: boolean;
+  sortOrder: number;
 };

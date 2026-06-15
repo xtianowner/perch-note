@@ -45,6 +45,7 @@
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
   --accent-soft: rgba(37, 99, 235, 0.15);
+  --search-hit: rgba(250, 204, 21, 0.5);
   --success: #16a34a;
   --danger: #dc2626;
   --danger-hover: #b91c1c;
@@ -74,6 +75,7 @@
     --accent: #3b82f6;
     --accent-hover: #60a5fa;
     --accent-soft: rgba(59, 130, 246, 0.22);
+    --search-hit: rgba(250, 204, 21, 0.32);
     --success: #4ade80;
     --danger: #f87171;
     --danger-hover: #fca5a5;
@@ -90,19 +92,10 @@
 }
 
 /* ---------- text size scaling (user setting) ----------
-   Applied via [data-text-size] on .app root. Affects body / textarea /
-   title / button / settings via the --fs-* tokens. Micro-labels
-   (entry-count, .settings-label, .saved-mark icon) keep fixed 10–11px
-   for visual identity. */
-.app[data-text-size="small"] {
-  --text-scale: 0.92;
-}
-.app[data-text-size="medium"] {
-  --text-scale: 1;
-}
-.app[data-text-size="large"] {
-  --text-scale: 1.12;
-}
+   --text-scale is set inline on the .app root from settings.fontScale
+   (continuous 0.7–1.8, driven by ⌘+/−/0 and the settings stepper). It
+   multiplies the --fs-11..14 body tokens. Micro-labels (--fs-10:
+   entry-count / section-label / settings-label) stay fixed for identity. */
 
 /* ---------- base ---------- */
 *,
@@ -243,6 +236,13 @@ button {
   box-shadow: var(--shadow-2);
   border-color: var(--border-strong);
 }
+.entry-item.is-pinned {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.entry-item.is-pinned:hover {
+  border-color: var(--accent);
+}
 
 .entry-header {
   display: flex;
@@ -258,6 +258,14 @@ button {
 .entry-time {
   cursor: default;
   font-variant-numeric: tabular-nums;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry-time-rel {
+  color: var(--text-3);
 }
 
 .entry-edited-mark {
@@ -317,6 +325,40 @@ button {
   border-color: var(--accent);
   background: var(--bg-input);
   box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---------- search read-view (replaces the textarea while a query is active) ----------
+   Renders the content as static text with <mark> highlights drawn ON the real
+   glyphs — no overlay, so nothing can drift. Click switches back to the
+   textarea (EntryItem `editing`). Box matches .entry-textarea so the swap is
+   visually seamless. */
+.entry-content-view {
+  position: relative;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: var(--fs-13);
+  line-height: 1.55;
+  color: inherit;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: calc(1.55em * 2 + 12px);
+  max-height: 240px;
+  overflow-y: auto;
+  cursor: text;
+  transition: border-color var(--dur-base) var(--ease);
+}
+.entry-content-view:hover {
+  border-color: var(--border);
+}
+.search-mark {
+  background: var(--search-hit);
+  color: inherit;
+  border-radius: 2px;
+  /* tiny horizontal breathing room so adjacent CJK glyphs stay legible */
+  padding: 0 0.5px;
 }
 
 /* ---------- copy button (icon + label) ---------- */
@@ -451,6 +493,68 @@ button {
 }
 .delete-btn:focus-visible {
   box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+/* ---------- pin button (icon-only variant of copy-btn) ---------- */
+.pin-btn.is-pinned {
+  color: var(--accent);
+}
+.pin-btn.is-pinned:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ---------- drag handle + reorder ---------- */
+.entry-header-left {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.drag-handle {
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: grab;
+  padding: 2px;
+  margin-left: -3px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* hand pointer gestures to dnd-kit instead of native scroll/select */
+  touch-action: none;
+  transition:
+    color var(--dur-base) var(--ease),
+    background var(--dur-base) var(--ease);
+}
+.drag-handle:hover {
+  color: var(--text-1);
+  background: var(--bg-muted);
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+.drag-handle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.entry-item.is-dragging {
+  opacity: 0.5;
+  box-shadow: var(--shadow-2);
+  position: relative;
+  z-index: 1;
+}
+
+.entry-section-label {
+  font-size: var(--fs-10);
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 0 2px;
+  opacity: 0.85;
 }
 
 /* ---------- input bar ---------- */
@@ -695,6 +799,107 @@ button {
 .settings-footer button.primary:hover {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
+}
+
+/* ---------- topbar actions (search + settings triggers) ---------- */
+.topbar-actions {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ---------- search bar (⌘F / icon toggled; replaces the topbar row) ---------- */
+.search-bar {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+}
+.search-icon {
+  flex: 0 0 auto;
+  color: var(--text-3);
+}
+.search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--text-1);
+  padding: 2px 0;
+}
+.search-input::placeholder {
+  color: var(--text-3);
+}
+.search-count {
+  flex: 0 0 auto;
+  font-size: var(--fs-10);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.search-close {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+}
+
+/* ---------- font size stepper (settings) ---------- */
+.font-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.font-stepper button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition:
+    background var(--dur-base) var(--ease),
+    border-color var(--dur-base) var(--ease),
+    color var(--dur-base) var(--ease);
+}
+.font-stepper button:hover:not(:disabled) {
+  background: var(--bg-muted);
+  border-color: var(--border-strong);
+}
+.font-stepper button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.font-stepper button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.font-stepper-value {
+  min-width: 46px;
+  text-align: center;
+  font-size: var(--fs-13);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
+.font-stepper-reset {
+  margin-left: var(--space-1);
+  color: var(--text-2);
+}
+.settings-hint {
+  font-size: var(--fs-10);
+  color: var(--text-3);
+  letter-spacing: 0.02em;
 }
 
 /* ---------- reduced motion ---------- */

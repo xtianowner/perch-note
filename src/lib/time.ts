@@ -1,4 +1,9 @@
 import { t } from "./i18n";
+import type { TimestampFormat } from "./settings";
+
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
 
 export function formatRelative(ts: number): string {
   const diff = Math.max(0, Date.now() - ts);
@@ -15,4 +20,15 @@ export function formatRelative(ts: number): string {
 
 export function formatAbsolute(ts: number): string {
   return new Date(ts).toLocaleString();
+}
+
+// Compact absolute timestamp for the entry header. local → "YYYY-MM-DD HH:MM";
+// iso → "YYYY-MM-DDTHH:MMZ" (UTC). Seconds/ms dropped to keep the header narrow.
+export function formatAbsoluteShort(ts: number, fmt: TimestampFormat): string {
+  const d = new Date(ts);
+  if (fmt === "iso") return d.toISOString().slice(0, 16) + "Z";
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+    `${pad(d.getHours())}:${pad(d.getMinutes())}`
+  );
 }
