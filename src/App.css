@@ -16,7 +16,9 @@
   --radius-sm: 4px;
   --radius-md: 6px;
 
-  /* text scale (user-controllable; small/medium/large) */
+  /* text scale — continuous body-text zoom (0.7–1.8). Set on :root (<html>)
+     from JS so the --fs-* tokens below, also declared on :root, re-resolve
+     against it. Driven by ⌘+/−/0 and the settings stepper. */
   --text-scale: 1;
 
   /* font sizes — body-tier sizes scale with --text-scale.
@@ -26,6 +28,7 @@
   --fs-12: calc(12px * var(--text-scale));
   --fs-13: calc(13px * var(--text-scale));
   --fs-14: calc(14px * var(--text-scale));
+  --fs-15: calc(15px * var(--text-scale));
 
   /* motion */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -92,10 +95,12 @@
 }
 
 /* ---------- text size scaling (user setting) ----------
-   --text-scale is set inline on the .app root from settings.fontScale
-   (continuous 0.7–1.8, driven by ⌘+/−/0 and the settings stepper). It
-   multiplies the --fs-11..14 body tokens. Micro-labels (--fs-10:
-   entry-count / section-label / settings-label) stay fixed for identity. */
+   --text-scale is set on document.documentElement (:root) from
+   settings.fontScale (App.tsx). It MUST live on :root, where --fs-11..15 are
+   declared — those tokens are resolved on the element that declares them, so
+   overriding --text-scale on a descendant would not re-resolve them (the font
+   zoom would silently no-op). Micro-labels (--fs-10: entry-count /
+   section-label / settings-label) stay fixed for identity. */
 
 /* ---------- base ---------- */
 *,
@@ -439,8 +444,8 @@ button {
 .entry-title {
   width: 100%;
   font-family: inherit;
-  font-size: var(--fs-13);
-  font-weight: 600;
+  font-size: var(--fs-15);
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: inherit;
   background: transparent;

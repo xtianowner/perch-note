@@ -1,4 +1,4 @@
-import { useState, useEffect, type CSSProperties } from "react";
+import { useState, useEffect } from "react";
 import { Settings as SettingsIcon, Search as SearchIcon } from "lucide-react";
 import type { Entry } from "./lib/types";
 import { EntryList } from "./components/EntryList";
@@ -46,6 +46,17 @@ function App() {
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
   }, []);
+
+  // Drive the font zoom from :root (<html>), NOT a descendant. The --fs-*
+  // tokens are `calc(..px * var(--text-scale))` declared on :root, so they're
+  // resolved there; setting --text-scale on a child wouldn't re-resolve them.
+  // (macOS doesn't zoom Tauri webviews natively, hence the CSS-var approach.)
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--text-scale",
+      String(settings.fontScale),
+    );
+  }, [settings.fontScale]);
 
   async function addEntry(content: string) {
     try {
@@ -161,11 +172,9 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchOpen]);
 
-  const appStyle = { "--text-scale": settings.fontScale } as CSSProperties;
-
   if (loading) {
     return (
-      <div className="app" style={appStyle}>
+      <div className="app">
         <div className="entry-list">
           <div className="entry-list-empty">{t("app.loading")}</div>
         </div>
@@ -174,7 +183,7 @@ function App() {
   }
   if (error) {
     return (
-      <div className="app" style={appStyle}>
+      <div className="app">
         <div className="entry-list">
           <div className="entry-list-empty">
             {t("app.dbError", { msg: error })}
@@ -190,7 +199,7 @@ function App() {
   const countLabel = n === 1 ? t("app.count.one") : t("app.count", { n });
 
   return (
-    <div className="app" style={appStyle}>
+    <div className="app">
       <div className="app-topbar">
         {searchOpen ? (
           <SearchBar

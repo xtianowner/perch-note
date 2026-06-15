@@ -52,10 +52,14 @@
 #### 字号
 
 ```
---fs-12: 12px;  // header / meta / button
---fs-13: 13px;  // body, textarea, settings
+--fs-10: 10px;  // micro-label：固定不缩放 (entry-count / section-label)
+--fs-11: 11px;  // 极小辅助文字 (header meta / button / saved-mark)
+--fs-12: 12px;  // 搜索框 / 设置内文
+--fs-13: 13px;  // body, textarea, 内容只读视图
 --fs-14: 14px;  // modal title
---fs-11: 11px;  // 极小辅助文字 (label / saved-mark)
+--fs-15: 15px;  // entry 标题（加大加粗，与正文拉开层级）
+// --fs-11..15 = calc(基准 * var(--text-scale))，随字体缩放联动；--fs-10 固定。
+// --text-scale 设在 :root(<html>) 上（见 §2.2 教训），不要设在后代元素。
 ```
 
 #### 圆角
@@ -338,7 +342,8 @@
 - 痛点：mac 上 `⌘ +` 不能像浏览器那样缩放 Tauri webview；旧 3 档 textSize 太粗且要进设置。
 - 决策：把离散 `textSize`（small/medium/large）升级为**连续 `fontScale`（0.7–1.8，步进 0.1）**，沿用 `--text-scale` 乘到 `--fs-11..14`（micro-label `--fs-10` 仍不缩放，保 hierarchy）。
 - 交互：全局快捷键 `⌘=`/`⌘+` 放大、`⌘-` 缩小、`⌘0` 复位（`metaKey||ctrlKey`，App 顶层 `window` keydown，`preventDefault`）；设置面板内提供 `− 110% + ⟲` 步进器作为可发现入口。
-- 单一真相源：`fontScale` 存在 `settings`，App 用**内联 `style={{'--text-scale': fontScale}}`** 注入根（取代旧 `data-text-size` 属性 + 3 条 CSS 规则）。键盘与步进器走同一条 `setFontScale`/`adjustFontScale`（functional setState + 立即 `saveSettings`），**即时生效、即时持久化、不走 draft/save**；设置面板 `save()` 用 live `fontScale` 而非 draft 快照，避免被开面板时的旧值覆盖。
+- 单一真相源：`fontScale` 存在 `settings`，App 用 `useEffect` 把它 `document.documentElement.style.setProperty('--text-scale', …)` **设到 `:root`(`<html>`)**（取代旧 `data-text-size` 属性 + 3 条 CSS 规则）。键盘与步进器走同一条 `setFontScale`/`adjustFontScale`（functional setState + 立即 `saveSettings`），**即时生效、即时持久化、不走 draft/save**；设置面板 `save()` 用 live `fontScale` 而非 draft 快照，避免被开面板时的旧值覆盖。
+  - **教训（2026-06-15 启动后用户实测：⌘ +/− 与设置改倍数全无效）**：初版把 `--text-scale` **内联设在 `.app`(`<div>`)** 上，但 `--fs-11..14` 是在 `:root` 用 `calc(..px * var(--text-scale))` 定义的——**CSS 自定义属性里的 `var()` 在"声明它的那个元素"上就已解析定值**；`.app` 是 `:root` 的后代，在后代覆盖 `--text-scale` 不会回头重算 `:root` 早已按 `1` 算死的 `--fs-*`，于是缩放从来没生效（经典 `--double-gap: calc(var(--gap)*2)` 陷阱）。修复：改用 `useEffect` 把 `--text-scale` 设到 `document.documentElement`(`:root`) 本身，与 `--fs-*` 同元素解析，后代统一继承缩放值。结论：**派生 token `calc(base * var(--x))` 必须与会被覆盖的 `--x` 设在同一元素（或其祖先）**；若要在子树里覆盖，得把派生 token 也在该子树重新声明，否则 silently no-op、且无报错最难查。
 - 迁移：`loadSettings` 把旧 `textSize` 映射成 scale（large→1.12 等），老用户无感；`clampFontScale` 钳制范围并保留 2 位小数防 ±0.1 浮点漂移。
 
 ### 2.3 模糊搜索（⌘F / 图标唤起）
@@ -349,6 +354,10 @@
   - **教训（overlay 方案两次对不齐后否定）**：先试"透明文字 textarea + 背后 `<mark>` 高亮层"的 overlay，要求两层文本度量逐像素一致。①第一次：`scrollbar-gutter` 在 textarea 占 8px 而 `overflow:hidden` 的 backdrop 不占 → 宽度差致换行漂移。②隐藏滚动条令两侧满宽后**仍偏一行**——overlay 受 textarea 与 div 的渲染细节（首行基线、滚动坐标系、padding 计入 offsetTop 与否）影响，**在无法看 GUI 逐像素调时不可靠**。结论：**高亮要画在真实文字上（read-view），别用第二层去对齐**——结构上消除对齐问题，比把 overlay 调准更稳。代价：搜索时内容只读、需点击进入编辑（可接受，搜索语境本就以"找"为主）。**限制**：title（`<input>`）暂不高亮（短、本就可见）。
 - 拖拽互斥：搜索激活（query 非空）时 `searchActive→dndDisabled` 透传到 EntryItem（`useSortable({disabled})` + 隐藏手柄）。**理由**：过滤子集上拖动会把 `sort_order` 写到错误邻居，污染数据；直接禁用最稳。
 - 状态隔离：过滤只作用于渲染（`visibleEntries`）；insert/update/delete/pin/reorder 仍操作完整 `entries`，乐观更新与搜索互不干扰；编辑中卡片即便因 flush 后不再匹配而被过滤，unmount flush 仍保证不丢数据。
+
+### 2.4 标题/正文层级强化（2026-06-15 实测后补）
+- 痛点：标题（`.entry-title`，sans `--fs-13`/600）与正文（`.entry-textarea`，mono `--fs-13`）字号相同，仅靠字族+字重区分，**用户反馈"分不清标题和内容"**。
+- 决策：标题升到 `--fs-15`（新增的 token，随 `--text-scale` 一起缩放）+ `font-weight:700`；正文保持 mono `--fs-13`。如今差异 = 更大 + 更粗 + sans/mono 三重对比，层级一眼可辨。placeholder 仍 400/italic 保持"空标题"的弱提示语义。
 
 ### 设计修订：Copy/Delete 改纯图标（否定 Phase-2"图标+文字"决策）
 - **背景**：2.1 把 header 时间从"15h前"扩成"绝对 · 相对"并排后，在用户的 `large`(112%) 字体 + 默认窗口下，带文字的 Copy/Delete 按钮挤占 header，"· 相对时间"被省略号截断。
