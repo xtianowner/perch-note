@@ -29,6 +29,16 @@ pub fn run() {
             sql: "ALTER TABLE entries ADD COLUMN title TEXT NOT NULL DEFAULT '';",
             kind: MigrationKind::Up,
         },
+        // Manual drag order. Additive ADD COLUMN — existing rows default to 0,
+        // which falls through to created_at DESC (prior behavior) until the
+        // user drags. Like v1/v2, never edit this string once shipped (sqlx
+        // checksums the exact bytes).
+        Migration {
+            version: 3,
+            description: "add_sort_order_column",
+            sql: "ALTER TABLE entries ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

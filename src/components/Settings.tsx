@@ -1,30 +1,37 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Minus, Plus, RotateCcw } from "lucide-react";
 import type {
   Settings as SettingsType,
   TimestampFormat,
   CopyPosition,
-  TextSize,
+} from "../lib/settings";
+import {
+  clampFontScale,
+  FONT_SCALE_STEP,
+  FONT_SCALE_DEFAULT,
+  FONT_SCALE_MIN,
+  FONT_SCALE_MAX,
 } from "../lib/settings";
 import { previewClipboardText } from "../lib/clipboard";
 import { useT, setLang, type Lang } from "../lib/i18n";
 
 type Props = {
   settings: SettingsType;
+  fontScale: number;
   onSave: (s: SettingsType) => void;
+  onFontScale: (v: number) => void;
   onClose: () => void;
 };
 
-export function SettingsPanel({ settings, onSave, onClose }: Props) {
+export function SettingsPanel({
+  settings,
+  fontScale,
+  onSave,
+  onFontScale,
+  onClose,
+}: Props) {
   const t = useT();
   const [draft, setDraft] = useState<SettingsType>(settings);
-
-  function applyTextSizeToRoot(size: SettingsType["textSize"]) {
-    // Live-preview text size by mutating the .app root attribute.
-    // Reverts on cancel; persisted via React state on save.
-    const root = document.querySelector(".app");
-    if (root) root.setAttribute("data-text-size", size);
-  }
 
   function patch(partial: Partial<SettingsType>) {
     const next = { ...draft, ...partial };
@@ -33,13 +40,12 @@ export function SettingsPanel({ settings, onSave, onClose }: Props) {
     if (partial.lang && partial.lang !== draft.lang) {
       setLang(partial.lang);
     }
-    if (partial.textSize && partial.textSize !== draft.textSize) {
-      applyTextSizeToRoot(partial.textSize);
-    }
   }
 
   function save() {
-    onSave(draft);
+    // fontScale is applied immediately (keyboard + stepper), so persist the
+    // live committed value rather than the stale draft snapshot from open.
+    onSave({ ...draft, fontScale });
     onClose();
   }
 
@@ -47,10 +53,6 @@ export function SettingsPanel({ settings, onSave, onClose }: Props) {
     // revert lang preview if user changed it but cancels
     if (draft.lang !== settings.lang) {
       setLang(settings.lang);
-    }
-    // revert textSize preview
-    if (draft.textSize !== settings.textSize) {
-      applyTextSizeToRoot(settings.textSize);
     }
     onClose();
   }
@@ -91,20 +93,45 @@ export function SettingsPanel({ settings, onSave, onClose }: Props) {
           </div>
 
           <div className="settings-row">
-            <label className="settings-label" htmlFor="text-size">
-              {t("settings.textSize")}
-            </label>
-            <select
-              id="text-size"
-              value={draft.textSize}
-              onChange={(e) =>
-                patch({ textSize: e.target.value as TextSize })
-              }
-            >
-              <option value="small">{t("settings.textSize.small")}</option>
-              <option value="medium">{t("settings.textSize.medium")}</option>
-              <option value="large">{t("settings.textSize.large")}</option>
-            </select>
+            <span className="settings-label">{t("settings.fontSize")}</span>
+            <div className="font-stepper">
+              <button
+                type="button"
+                onClick={() =>
+                  onFontScale(clampFontScale(fontScale - FONT_SCALE_STEP))
+                }
+                disabled={fontScale <= FONT_SCALE_MIN}
+                aria-label={t("settings.fontSize.decrease")}
+                title={t("settings.fontSize.decrease")}
+              >
+                <Minus size={14} strokeWidth={1.75} aria-hidden="true" />
+              </button>
+              <span className="font-stepper-value">
+                {Math.round(fontScale * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  onFontScale(clampFontScale(fontScale + FONT_SCALE_STEP))
+                }
+                disabled={fontScale >= FONT_SCALE_MAX}
+                aria-label={t("settings.fontSize.increase")}
+                title={t("settings.fontSize.increase")}
+              >
+                <Plus size={14} strokeWidth={1.75} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className="font-stepper-reset"
+                onClick={() => onFontScale(FONT_SCALE_DEFAULT)}
+                disabled={fontScale === FONT_SCALE_DEFAULT}
+                aria-label={t("settings.fontSize.reset")}
+                title={t("settings.fontSize.reset")}
+              >
+                <RotateCcw size={13} strokeWidth={1.75} aria-hidden="true" />
+              </button>
+            </div>
+            <span className="settings-hint">{t("settings.fontSize.hint")}</span>
           </div>
 
           <div className="settings-row">

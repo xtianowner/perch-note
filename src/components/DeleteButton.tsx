@@ -40,9 +40,12 @@ export function DeleteButton({ onConfirm }: Props) {
       onClick={handleClick}
       type="button"
       aria-label={confirming ? t("entry.deleteConfirm") : t("entry.delete")}
+      title={confirming ? t("entry.deleteConfirm") : t("entry.delete")}
     >
       <Trash2 size={13} strokeWidth={1.75} aria-hidden="true" />
-      <span>{confirming ? t("entry.deleteConfirm") : t("entry.delete")}</span>
+      {/* icon-only by default to keep the header compact; the two-step confirm
+          still reveals its label so the destructive action stays legible */}
+      {confirming && <span>{t("entry.deleteConfirm")}</span>}
     </button>
   );
 }
