@@ -3,9 +3,28 @@
 # Review
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 13:15:00
+**更新时间**: 2026-06-15
 
 ## 阶段总结
+
+### 2026-06-15 修改时间显示 + 字体连续缩放 + 模糊搜索
+- 用户需求 2.1/2.2/2.3：① header 显示绝对修改时间而非仅"15h前" ② mac 无法 `⌘+` 缩放 → 要连续字体缩放 ③ 模糊搜索
+- **开工前先备份**：用户要求确认数据无误再开发 → `.backup` 快照 `perch.db`（31 行 / 6 有效）+ JSON 导出 + localStorage，落 `00TEM/AgentBus/artifacts/0615-1108-perch-backup/`，integrity_check=ok、行数对齐后用户确认
+- 用 AskUserQuestion 定 3 个设计岔口：绝对·相对并排 / `⌘+/−/0` 连续缩放(0.7–1.8) / `⌘F` 唤起搜索
+- **实现**（Phase 1 功能链路，复用 design tokens，**未碰数据层/迁移/复制规则**）：`time.formatAbsoluteShort` + `search.ts` 子序列模糊匹配 + `settings.fontScale`（旧 textSize 自动迁移）+ 全局键盘 + SearchBar；搜索时禁拖拽防污染 sort_order
+- **多 agent 对抗审查**（Workflow，6 维度 × 对抗验证，38 agents / 32 发现 → 确证 12）：修 savedFlash 卸载守卫、formatAbsoluteShort(iso) 压缩、迁移钳制；验证数据零风险 + 搜索不破坏乐观更新
+- **依用户决策**：Copy/Delete 改纯图标（否定 Phase-2"图标+文字"，腾 header 空间）；**顺手修旧 pin 功能 bug**（编辑中途置顶丢屏幕编辑 → pin 前先 flush 草稿）
+- 验证：`tsc` + `vite build` 全通过（JS 265KB gzip 84KB，零新依赖）；GUI 手感需用户 `pnpm tauri dev` 实测
+- 文档：modules / ui.md 同步
+
+### 2026-05-26 置顶 + 拖动排序 + 文档整理
+- 用户需求：① 置顶重要记录 ② 拖动调整顺序 ③ 文档整理到最新 + 删历史残留
+- **置顶**：发现 `pinned` 列自 v1 迁移（commit f17c9ff）即存在 → **零迁移、零数据丢失**，纯前端接通；PinButton 复用 `copy-btn` 模式，置顶项 accent 左边条
+- **拖动排序**：用 AskUserQuestion 与用户确认"分区拖动"（置顶区/普通区各自独立，不跨区）；新增 migration **v3 `add_sort_order_column`**（追加列 DEFAULT 0，旧数据回落 `created_at DESC`）；用 `@dnd-kit`（手柄绑定 + 键盘可达，避开原生 DnD 的脆弱 hack）—— 本项目首个运行时 UI 依赖
+- **踩坑**：项目是 pnpm workspace，`npm install` 在 arborist 阶段崩 → 改用 `pnpm add`（已记入项目记忆）
+- 验证：`tsc` + `vite build` + `cargo check` 全通过；GUI 拖拽手感需用户 `pnpm tauri dev` 实测
+- **文档整理**：README ×2 / design / ui.md / modules / todo / tasks 同步；删除 `docs/audit/`（4 篇未跟踪的一次性审查报告，bug 修复已沉淀进代码 + git 历史）
+- 本轮无 Agent tool 委托（主 agent 直接做），故无新增调度日志
 
 ### 2026-05-15 项目立项
 - 用户提出"永远置顶 + 时间戳记录"的桌面工具需求
@@ -73,6 +92,11 @@
 2026-05-15 13:30  task=phase2-ui-polish  agent=frontend-phase2-polisher  reason=用户显式启动 Phase 2 美化 + 同轮 InputBar resize + i18n  user_correction=none
 2026-05-15 14:15  task=phase2-polish-v2  agent=frontend-phase2-polisher  reason=主 agent 加完 title/delete/count 后用户要"优化文字间距 + 风格"，把新元素融入设计体系 + 整体微调  user_correction=none
 2026-05-15 14:40  task=phase2-polish-v3  agent=frontend-phase2-polisher  reason=新增"调整文本大小"功能 + 用户反馈"文字贴边距离需再调"  user_correction=none
+2026-05-22 10:18  task=audit-code        agent=general-purpose             reason=用户要求审 bug + 代码问题；落 docs/audit/0522-1018-code-audit.md  user_correction=none
+2026-05-22 10:18  task=audit-docs        agent=general-purpose             reason=用户强调文档 vs 代码一致性、避免虚构；落 docs/audit/0522-1018-docs-audit.md  user_correction=none
+2026-05-22 10:25  task=fix-bugs-major    agent=general-purpose             reason=用户授权直接修 4 个 major bug（M1-M4），同时严令不动 SQLite 数据库文件、不动 migrations  user_correction=none
+2026-05-22 10:30  task=audit-docs-pass2  agent=general-purpose             reason=用户要求二次核查文档准确性（确保上轮 6 份文档修复 + 3 份代码修复后文档与代码完全一致）  user_correction=none
+2026-06-15 11:15  task=review-2.1-2.3    agent=Workflow(perch-feature-review)  reason=ultracode 下对 2.1/2.2/2.3 改动跑 6 维度对抗审查 + 验证（38 子 agent，确证 12/32）  user_correction=none
 
 ### 2026-05-15 编辑交互简化（去 edit/save 按钮 + 15s 自动保存）
 - 用户反馈"edit / save 太麻烦"，希望"开放式框框，随时改"

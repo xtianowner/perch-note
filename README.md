@@ -11,21 +11,37 @@
 ## 功能
 
 - **永远置顶**：切到 Chrome / Claude Code / 终端，浮窗都不消失
-- **自动时间戳**：每条记录留有最后编辑时刻
+- **修改时间显示**：每条记录头部并排显示**绝对修改时间 + 相对时间**（如 `2026-06-15 10:49 · 5 分钟前`）；hover 看完整 修改 / 创建 时间
+- **模糊搜索 + 命中高亮**：`⌘F` 或顶栏 🔍 唤起，输入即过滤（标题 + 内容、大小写不敏感、空格分词 AND）；命中词在笔记**内部高亮并自动滚动定位**，`Esc` 收起
+- **字体连续缩放**：`⌘ +` 放大 / `⌘ −` 缩小 / `⌘ 0` 复位（70%–180% 连续档，记忆到本地）—— 解决 macOS 下 Tauri 窗口无法用 `⌘+` 缩放的问题
 - **开放式编辑**：每条 entry 都是一个 live textarea，输入即改，**停手 15 秒自动保存**（焦点离开、关窗时也兜底保存）
 - **每条独立标题**（可选）
-- **软删除**：两步确认（红色 "Confirm" 4 秒倒计时，反悔无门槛）
-- **一键复制纯文本**：title + 时间戳 + 内容，全程不渲染 markdown，**你打的什么就粘出什么**
+- **置顶**：重要记录一键置顶，始终浮在列表顶部
+- **拖动排序**：抓住左上角手柄拖动调整顺序；置顶区与普通区各自独立排序，互不串位
+- **软删除**：两步确认（红色 "再点确认" 4 秒倒计时，反悔无门槛）
+- **一键复制纯文本**：title + 时间戳 + 内容，全程不渲染 markdown，**你打的什么就粘出什么**；点击复制时读取屏幕上的 live draft —— 还没自动保存的改动也能直接粘出去
 - **自定义剪贴板前缀 / 后缀**：附加签名、标签、引用前缀，自选放在内容前还是后
 - **本地优先**：数据进本地 SQLite（应用数据目录），无账号 / 无同步 / 无遥测
 - **中英双语**：Settings 内一键切换
 - **浅色 / 深色双主题**：跟随系统偏好
-- **字号 3 档可调**：Small / Medium / Large
+
+## 快捷键
+
+| 快捷键 | 作用 |
+|---|---|
+| `⌘ F` | 唤起 / 聚焦搜索框 |
+| `Esc` | 收起搜索 |
+| `⌘ +` / `⌘ −` | 放大 / 缩小字体 |
+| `⌘ 0` | 字体复位到 100% |
+| `Enter` | 提交底部输入框新建一条（`Shift+Enter` 换行） |
+
+> Windows / Linux 上把 `⌘` 换成 `Ctrl`。
 
 ## 状态
 
 V1 MVP — 在 macOS / Windows 上可从源码运行。**暂未发布预编译二进制**。
 
+**功能说明**见 [`docs/features.md`](./docs/features.md)。
 完整产品设计 & 路线图见 [`docs/design/0515-1146-design.md`](./docs/design/0515-1146-design.md)。
 UI 设计决策见 [`docs/ui.md`](./docs/ui.md)。
 
@@ -37,6 +53,7 @@ UI 设计决策见 [`docs/ui.md`](./docs/ui.md)。
 | UI | React 19 + TypeScript + Vite 7 |
 | 存储 | SQLite，经 `tauri-plugin-sql` |
 | 图标 | `lucide-react` |
+| 拖拽 | `@dnd-kit`（手柄拖动排序，键盘可达） |
 | 目标平台 | macOS（universal）、Windows（x64） |
 
 ## 快速开始
@@ -73,7 +90,7 @@ pnpm tauri build
 ```
 perch-note/
 ├── src/                  # React UI（TypeScript）
-│   ├── components/       # EntryList、EntryItem、InputBar、CopyButton、Settings、DeleteButton
+│   ├── components/       # EntryList、EntryItem、InputBar、CopyButton、Settings、DeleteButton、PinButton
 │   ├── lib/              # db、i18n、settings、clipboard、time、types
 │   └── App.{tsx,css}
 ├── src-tauri/            # Rust 容器 + SQLite migrations
@@ -93,10 +110,12 @@ perch-note/
 ## 路线图
 
 - [ ] 预编译已签名的二进制（macOS `.dmg` + Windows `.msi`）
+- [x] 模糊搜索 + 命中高亮定位
+- [x] 字体连续缩放
 - [ ] 全局快捷键唤起 / 隐藏窗口
 - [ ] 系统托盘 + 折叠成小条
 - [ ] 自绘 toolbar（去掉系统标题栏）
-- [ ] 搜索 / 标签 / 置顶
+- [ ] 标签 / 分类
 - [ ] 导出（JSON / txt / CSV）
 - [ ] 可选云同步
 

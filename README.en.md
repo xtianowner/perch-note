@@ -11,22 +11,37 @@ A tiny cross-platform desktop floating notepad. Stays on top of every window, ca
 ## Features
 
 - **Always on top** — never hidden when you switch to Chrome, Slack, your terminal, etc.
-- **Auto-timestamped entries** — every note records when it was last edited
+- **Modified-time display** — each entry's header shows the **absolute modified time + a relative one** side by side (e.g. `2026-06-15 10:49 · 5 min ago`); hover for full modified / created timestamps
+- **Fuzzy search with in-place highlight** — summon with `⌘F` or the 🔍 in the top bar; filters as you type (title + content, case-insensitive, space-separated AND); matches are **highlighted and scrolled into view inside each note**; `Esc` to dismiss
+- **Continuous text zoom** — `⌘ +` / `⌘ −` to scale, `⌘ 0` to reset (70%–180%, persisted) — fixes the fact that macOS can't `⌘+`-zoom a Tauri window
 - **Open editing** — every entry is a live textarea; type and walk away, autosave kicks in after 15s (also on blur and on close)
 - **Per-entry title** (optional)
+- **Pin** — keep important notes floating at the top of the list
+- **Drag to reorder** — grab the handle to reorder; pinned and unpinned sections sort independently
 - **Soft delete** with 2-tap inline confirmation
-- **One-click copy as plain text** — title + timestamp + content; no markdown rendering anywhere, what you typed is what you paste
+- **One-click copy as plain text** — title + timestamp + content; no markdown rendering anywhere, what you typed is what you paste; copies your live draft, including edits the autosave hasn't flushed yet
 - **Custom clipboard suffix/prefix** — append a signature, a tag, anything; pick before or after the body
 - **Local-first** — data lives in SQLite under your app data dir; no account, no sync, no telemetry
 - **i18n** — English / 中文
 - **Light & dark** — follows system preference, designed in both
-- **Adjustable text size** — Small / Medium / Large via Settings
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `⌘ F` | Open / focus search |
+| `Esc` | Close search |
+| `⌘ +` / `⌘ −` | Zoom text in / out |
+| `⌘ 0` | Reset text size to 100% |
+| `Enter` | Submit the bottom input as a new entry (`Shift+Enter` for newline) |
+
+> On Windows / Linux use `Ctrl` instead of `⌘`.
 
 ## Status
 
 V1 MVP — runs from source on macOS and Windows. Pre-built binaries not yet shipped.
 
-See [`docs/design/0515-1146-design.md`](./docs/design/0515-1146-design.md) for the full product brief and roadmap.
+See [`docs/features.md`](./docs/features.md) for the feature reference, and [`docs/design/0515-1146-design.md`](./docs/design/0515-1146-design.md) for the full product brief and roadmap.
 
 ## Tech stack
 
@@ -36,6 +51,7 @@ See [`docs/design/0515-1146-design.md`](./docs/design/0515-1146-design.md) for t
 | UI | React 19 + TypeScript + Vite 7 |
 | Storage | SQLite via `tauri-plugin-sql` |
 | Icons | `lucide-react` |
+| Drag & drop | `@dnd-kit` (handle-based reorder, keyboard accessible) |
 | Targets | macOS (universal), Windows (x64) |
 
 ## Getting started
@@ -72,7 +88,7 @@ Outputs to `src-tauri/target/release/bundle/` (macOS `.app` / `.dmg`, Windows `.
 ```
 perch-note/
 ├── src/                  # React UI (TypeScript)
-│   ├── components/       # EntryList, EntryItem, InputBar, CopyButton, ...
+│   ├── components/       # EntryList, EntryItem, InputBar, CopyButton, PinButton, ...
 │   ├── lib/              # db, i18n, settings, clipboard, time, types
 │   └── App.{tsx,css}
 ├── src-tauri/            # Rust shell + SQLite migrations
@@ -92,10 +108,12 @@ It's a plain SQLite file. Back it up, inspect it with `sqlite3`, copy it between
 ## Roadmap
 
 - [ ] Pre-built signed binaries (macOS `.dmg` + Windows `.msi`)
+- [x] Fuzzy search with in-place highlight & scroll-to-match
+- [x] Continuous text zoom
 - [ ] Global hotkey to focus the window
 - [ ] System tray + collapse-to-strip mode
 - [ ] Custom title bar (drop the system chrome)
-- [ ] Search / tag / pin
+- [ ] Tags / categories
 - [ ] Export (JSON / txt / CSV)
 - [ ] Optional sync
 

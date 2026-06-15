@@ -3,7 +3,7 @@
 # Perch 开发环境
 
 **创建时间**: 2026-05-15 11:46:39
-**更新时间**: 2026-05-15 11:50:00
+**更新时间**: 2026-05-22 10:20:00
 
 ## 必备工具
 
@@ -19,15 +19,18 @@
 - Visual Studio Build Tools 2022 (Desktop development with C++)
 - WebView2 Runtime (Win10/11 已内置)
 
-## 项目命令（待 V1 scaffold 后启用）
+## 项目命令
 
 ```bash
 pnpm install
-pnpm tauri dev          # 开发模式
-pnpm tauri build        # 生产打包
-pnpm test               # 前端单测
-cargo test              # Rust 测试
+pnpm dev                # 仅 Vite（浏览器调试 UI，不带 Tauri 窗口）
+pnpm build              # tsc 类型检查 + Vite 打包到 dist/
+pnpm preview            # 预览 dist/ 产物
+pnpm tauri dev          # Tauri 开发模式（开 360×480 永远置顶窗口）
+pnpm tauri build        # 生产打包（输出到 src-tauri/target/release/bundle/）
 ```
+
+> **暂无单测**：`package.json` 未配置 `test` script，`src-tauri/` 也无 `#[cfg(test)]` 用例。V2 视需要再引入。
 
 ## 不使用 conda
 
