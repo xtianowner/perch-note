@@ -3,7 +3,7 @@
 # Perch · 项目级规则
 
 **创建时间**: 2026-06-29 14:09:56
-**更新时间**: 2026-07-02 10:32:50
+**更新时间**: 2026-07-03 11:28:06
 **时区**: Asia/Shanghai
 
 > 叠加 `~/.claude/CLAUDE.md` 全局规则，这里只写 Perch 专属的 delta。
@@ -33,13 +33,19 @@ open /Applications/Perch.app
 - ❌ 用 `&` 后台挂在当前 shell：仍是 shell 子进程，终端关闭会被 SIGHUP 杀掉。`open` 才是正解。
 
 ## 改了代码后如何刷新常驻应用
-`/Applications/Perch.app` 是已构建产物，改源码不会自动生效。需重新构建并覆盖安装：
+`/Applications/Perch.app` 是已构建产物，改源码不会自动生效。**规范流程就是一条命令**：
+
+```bash
+./start.sh --build   # 构建 → 停旧实例 → 覆盖安装到 /Applications → 重启 + 核验解耦
+```
+
+等价的裸命令（顺序与脚本一致：先停旧实例、再替换 bundle）：
 
 ```bash
 pnpm tauri build                              # 产出 src-tauri/target/release/bundle/macos/Perch.app
+pkill -f /Applications/Perch.app/Contents/MacOS/perch-app || true      # 停旧实例
 cp -R src-tauri/target/release/bundle/macos/Perch.app /Applications/   # 覆盖安装
-# 重启常驻实例：
-pkill -i perch-app; open /Applications/Perch.app
+open /Applications/Perch.app                  # 重启常驻实例
 ```
 
 ## 依赖管理

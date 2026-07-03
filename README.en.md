@@ -75,6 +75,13 @@ pnpm tauri dev
 
 A 360 × 480 always-on-top window will appear. Type into the bottom bar, hit Enter, watch it land in the list above. Open Settings (⚙ top-right) to tweak language, copy format, text size, etc.
 
+On macOS, day-to-day use is easiest via the bundled one-click launcher — it runs the **installed** app under launchd, detached from the terminal (closing the terminal won't kill it):
+
+```bash
+./start.sh --build   # first time: build + install to /Applications + launch
+./start.sh           # afterwards: one-click launch / bring to front, verifies detachment
+```
+
 ### Build
 
 ```bash
