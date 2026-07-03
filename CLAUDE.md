@@ -3,7 +3,7 @@
 # Perch · 项目级规则
 
 **创建时间**: 2026-06-29 14:09:56
-**更新时间**: 2026-07-03 11:28:06
+**更新时间**: 2026-07-03 11:32:31
 **时区**: Asia/Shanghai
 
 > 叠加 `~/.claude/CLAUDE.md` 全局规则，这里只写 Perch 专属的 delta。
@@ -44,7 +44,8 @@ open /Applications/Perch.app
 ```bash
 pnpm tauri build                              # 产出 src-tauri/target/release/bundle/macos/Perch.app
 pkill -f /Applications/Perch.app/Contents/MacOS/perch-app || true      # 停旧实例
-cp -R src-tauri/target/release/bundle/macos/Perch.app /Applications/   # 覆盖安装
+rm -rf /Applications/Perch.app                # 移除旧 bundle（BSD cp -R 对已存在 bundle 是合并而非替换，会残留陈旧文件）
+cp -R src-tauri/target/release/bundle/macos/Perch.app /Applications/   # 全新安装
 open /Applications/Perch.app                  # 重启常驻实例
 ```
 
