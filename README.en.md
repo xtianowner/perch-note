@@ -6,7 +6,11 @@
 
 > Always-on-top notepad with timestamps. Perch on your screen, jot anything, copy it as clean plain text.
 
+![Perch desktop floating notepad showing timestamped pinned notes, search, settings, and the quick-capture input](./docs/assets/perch-overview.png)
+
 A tiny cross-platform desktop floating notepad. Stays on top of every window, captures quick thoughts with automatic timestamps, and copies cleanly as plain text — no markdown surprises when you paste into Slack / a code comment / an email.
+
+> The screenshot uses demo content and contains no real notes.
 
 ## Features
 
